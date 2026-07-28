@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In - Project Emoticon</title>
+  <link rel="stylesheet" href="index_style.css" />
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cur"></div>
+<div class="cursor-ring" id="curRing"></div>
+
+<!-- Navigation -->
+<nav>
+  <div class="nav-logo">Project <em>Emoticon</em></div>
+  <ul class="nav-links">
+    <li><a href="index.html" class="nav-cta">Home</a></li>
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="index.html#pricings">Pricings</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+
+  </ul>
+</nav>
+
+<!-- SIGN IN WITH KEYS -->
+<section id="signin" style="padding-bottom: 120px;">
+  <div style="text-align:center" class="reveal visible">
+    <p class="section-label" style="justify-content:center;display:flex">// Secure Access</p>
+    <h2 class="section-title">Sign in with your Key.</h2>
+    <p class="section-sub" style="margin:0 auto">Enter the unique access key linked to your account to unlock your personalised dashboard and order history.</p>
+  </div>
+  <div class="signin-box reveal visible">
+    <span class="signin-emoji">🔑</span>
+    <div class="signin-title">Access Portal</div>
+    <p class="signin-sub">Your key is a unique identifier provided after your first order. Lost it? Contact us.</p>
+    <div class="key-input-wrap">
+      <input class="key-input" type="password" id="keyInput" placeholder="EMTCN-XXXX-XXXX-XXXX" />
+      <button class="key-toggle" id="keyToggle" onclick="toggleKey()">👁</button>
+    </div>
+    <button class="signin-btn" onclick="handleSignin()">Unlock Access ✦</button>
+    <p class="signin-note">// Your key never leaves your device unencrypted</p>
+  </div>
+</section>
+<script src="base-script.js"></script>
+</body>
+</html>

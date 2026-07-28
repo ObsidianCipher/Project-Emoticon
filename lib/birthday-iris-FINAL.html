@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Iris — Happy Birthday ✦</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════ TOKENS ═══════════ */
+:root{
+  --void:#020408;
+  --c1:#00ffe5;--c2:#7b2fff;--c3:#ff2d78;--c4:#ffd700;--c5:#ff9a3c;
+  --star:#e8f4ff;
+  --gl:rgba(255,255,255,.04);--gl2:rgba(255,255,255,.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y mandatory}
+body{background:var(--void);color:var(--star);font-family:'Cormorant Garamond',serif;overflow-x:hidden;cursor:none}
+
+/* ═══════════ CURSOR ═══════════ */
+#cur{position:fixed;inset:0;z-index:9999;pointer-events:none}
+#cdot{width:9px;height:9px;background:var(--c1);border-radius:50%;position:absolute;transform:translate(-50%,-50%);box-shadow:0 0 16px var(--c1),0 0 32px rgba(0,255,229,.4);transition:transform .15s,background .2s,box-shadow .2s}
+#cring{width:40px;height:40px;border:1.5px solid rgba(0,255,229,.5);border-radius:50%;position:absolute;transform:translate(-50%,-50%);transition:width .3s cubic-bezier(.22,1,.36,1),height .3s cubic-bezier(.22,1,.36,1),border-color .3s}
+#cring.xl{width:70px;height:70px;border-color:var(--c3);border-width:1px}
+#cdot.pop{transform:translate(-50%,-50%) scale(2.2);background:var(--c3);box-shadow:0 0 22px var(--c3)}
+/* trail dots */
+.ctrail{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--c1);transform:translate(-50%,-50%);pointer-events:none;transition:opacity .4s}
+
+/* ═══════════ LOADER ═══════════ */
+#loader{position:fixed;inset:0;z-index:8000;background:var(--void);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;transition:opacity .8s,visibility .8s}
+#loader.out{opacity:0;visibility:hidden;pointer-events:none}
+.ld-eye{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:7px;color:rgba(0,255,229,.45);text-transform:uppercase}
+.ld-name{font-family:'Playfair Display',serif;font-size:clamp(44px,8vw,96px);font-style:italic;background:linear-gradient(135deg,var(--c1),var(--c2),var(--c3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;animation:fin .9s .7s forwards}
+.ld-bar{width:240px;height:1px;background:rgba(255,255,255,.07);overflow:hidden;position:relative}
+.ld-fill{position:absolute;inset:0;background:linear-gradient(90deg,var(--c2),var(--c1));width:0;animation:ldf 2.8s cubic-bezier(.77,0,.175,1) forwards;box-shadow:0 0 20px var(--c1)}
+@keyframes ldf{to{width:100%}}
+.ld-pct{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.18);text-align:center}
+@keyframes fin{to{opacity:1}}
+/* loader particle burst */
+.lspark{position:absolute;width:2px;height:2px;border-radius:50%;animation:lsp linear forwards}
+@keyframes lsp{to{transform:translate(var(--tx),var(--ty));opacity:0}}
+
+/* ═══════════ GLOBAL ═══════════ */
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+#spbar{position:fixed;top:0;left:0;height:2px;z-index:6000;background:linear-gradient(90deg,var(--c2),var(--c1),var(--c3));width:0;box-shadow:0 0 12px var(--c1);transition:width .08s}
+
+.page{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:72px 52px;overflow:hidden;scroll-snap-align:start}
+.pnum{position:absolute;top:30px;left:44px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:4px;color:rgba(255,255,255,.1);pointer-events:none;z-index:2}
+
+.rv{opacity:0;transform:translateY(52px);transition:opacity 1s cubic-bezier(.22,1,.36,1),transform 1s cubic-bezier(.22,1,.36,1)}
+.rv.vis{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.08s}.d2{transition-delay:.18s}.d3{transition-delay:.3s}.d4{transition-delay:.42s}.d5{transition-delay:.54s}.d6{transition-delay:.66s}.d7{transition-delay:.78s}
+
+.tag{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:6px;text-transform:uppercase;margin-bottom:12px}
+.divln{width:52px;height:1px;border-radius:99px;margin:14px 0}
+
+/* Orbs */
+.orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(100px);opacity:.12;animation:obf linear infinite}
+@keyframes obf{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-20px) scale(1.07)}66%{transform:translate(-20px,30px) scale(.93)}}
+
+/* Grid bg */
+.grd{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.016) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.016) 1px,transparent 1px);background-size:66px 66px;mask-image:radial-gradient(ellipse at center,black 0%,transparent 70%)}
+.nbl{position:absolute;inset:0;pointer-events:none}
+
+/* Ring deco */
+.dring{position:absolute;border-radius:50%;border:1px solid;pointer-events:none;left:50%;top:50%;animation:dr linear infinite}
+@keyframes dr{to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+/* Ticker */
+.tkw{position:absolute;bottom:0;left:0;width:100%;overflow:hidden;border-top:1px solid rgba(255,255,255,.04);padding:12px 0;background:rgba(255,255,255,.01)}
+.tki{display:flex;width:max-content;animation:tka 24s linear infinite}
+.ti{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;padding:0 38px;white-space:nowrap;opacity:.2;color:var(--c1)}
+.ti.a{color:var(--c3)}.ti.b{color:var(--c4)}
+@keyframes tka{to{transform:translateX(-50%)}}
+
+@keyframes ru{from{opacity:0;transform:translateY(44px)}to{opacity:1;transform:translateY(0)}}
+@keyframes sp2{0%,100%{opacity:.2;transform:scaleY(1)}50%{opacity:1;transform:scaleY(1.3)}}
+
+/* ═══════════ GLITCH ═══════════ */
+.glitch{position:relative;display:inline-block}
+.glitch::before,.glitch::after{content:attr(data-t);position:absolute;inset:0;background:inherit;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.glitch::before{left:3px;animation:glA 4s infinite;text-shadow:-2px 0 var(--c3)}
+.glitch::after{left:-3px;animation:glB 4s infinite;text-shadow:2px 0 var(--c1)}
+@keyframes glA{0%,88%,100%{opacity:0;clip-path:none}90%{opacity:.8;clip-path:polygon(0 15%,100% 15%,100% 35%,0 35%)}94%{opacity:.6;clip-path:polygon(0 55%,100% 55%,100% 75%,0 75%)}}
+@keyframes glB{0%,91%,100%{opacity:0;clip-path:none}93%{opacity:.7;clip-path:polygon(0 45%,100% 45%,100% 62%,0 62%)}}
+
+/* ═══════════ NAV ═══════════ */
+.navd{position:fixed;right:28px;top:50%;transform:translateY(-50%);z-index:500;display:flex;flex-direction:column;gap:14px}
+.nd{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.14);cursor:pointer;transition:all .35s;border:1px solid rgba(255,255,255,.14);position:relative}
+.nd.on{background:var(--c1);box-shadow:0 0 14px var(--c1),0 0 28px rgba(0,255,229,.3);transform:scale(1.5)}
+.nd-lbl{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.35);white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none;text-transform:uppercase;background:rgba(2,4,8,.8);padding:4px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.06)}
+.nd:hover .nd-lbl{opacity:1}
+
+/* ═══════════ PAGE 1 — COSMIC ENTRY ═══════════ */
+#p1{flex-direction:column;text-align:center}
+.p1e{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:7px;color:var(--c1);text-transform:uppercase;margin-bottom:36px;opacity:0;animation:ru .9s 2.7s cubic-bezier(.22,1,.36,1) forwards}
+.p1t{font-family:'Playfair Display',serif;font-size:clamp(52px,10.5vw,148px);font-weight:900;line-height:.87;letter-spacing:-3px;opacity:0;animation:ru 1s 2.9s cubic-bezier(.22,1,.36,1) forwards}
+.ng{display:block;background:linear-gradient(135deg,var(--c4) 0%,var(--c5) 28%,var(--c3) 58%,var(--c2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 55px rgba(255,215,0,.32));animation:shim 4.5s 3.8s infinite}
+@keyframes shim{0%,100%{filter:drop-shadow(0 0 55px rgba(255,215,0,.28))}50%{filter:drop-shadow(0 0 100px rgba(255,45,120,.55))}}
+.p1s{font-size:clamp(18px,2.5vw,30px);font-style:italic;color:rgba(232,244,255,.52);margin-top:20px;opacity:0;animation:ru 1s 3.2s cubic-bezier(.22,1,.36,1) forwards}
+.p1d{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:5px;color:rgba(123,47,255,.7);margin-top:16px;opacity:0;animation:ru 1s 3.4s cubic-bezier(.22,1,.36,1) forwards}
+.scrl{position:absolute;bottom:82px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;animation:fin 1s 4.4s forwards;z-index:2}
+.scrl span{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:rgba(255,255,255,.22);text-transform:uppercase}
+.scrl-ln{width:1px;height:54px;background:linear-gradient(to bottom,rgba(0,255,229,.65),transparent);animation:sp2 2.2s infinite}
+
+/* ═══════════ PAGE 2 — WISHES ═══════════ */
+#p2{flex-direction:column;gap:60px}
+.p2g{display:grid;grid-template-columns:1fr 1fr;gap:48px;max-width:1140px;width:100%;align-items:center}
+.p2h{font-family:'Playfair Display',serif;font-size:clamp(38px,5.5vw,80px);font-weight:700;line-height:1.04;letter-spacing:-1.5px}
+.p2h em{font-style:italic;background:linear-gradient(135deg,var(--c1),var(--c2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.p2b{font-size:clamp(16px,1.6vw,20px);line-height:1.9;color:rgba(232,244,255,.58);margin-top:22px;max-width:480px}
+.wr{display:flex;flex-direction:column;gap:18px}
+/* wish card */
+.wc{background:var(--gl);border:1px solid rgba(255,255,255,.07);border-radius:22px;padding:26px 32px;backdrop-filter:blur(28px);position:relative;overflow:hidden;transition:transform .45s cubic-bezier(.22,1,.36,1),border-color .3s,box-shadow .3s;cursor:default}
+.wc::before{content:'';position:absolute;inset:0;background:linear-gradient(130deg,rgba(255,255,255,.03),transparent);border-radius:inherit;pointer-events:none}
+.wc::after{content:'';position:absolute;inset:0;background:linear-gradient(108deg,transparent 38%,rgba(255,255,255,.05) 50%,transparent 62%);transform:translateX(-100%);transition:transform .6s;border-radius:inherit;pointer-events:none}
+.wc:hover{transform:translateY(-8px) scale(1.015);border-color:rgba(0,255,229,.2);box-shadow:0 24px 70px rgba(0,0,0,.45),0 0 30px rgba(0,255,229,.06)}
+.wc:hover::after{transform:translateX(100%)}
+.wc .ic{font-size:28px;margin-bottom:10px;display:block;transition:transform .3s}
+.wc:hover .ic{transform:scale(1.2) rotate(-8deg)}
+.wc h3{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;margin-bottom:7px;letter-spacing:-.2px}
+.wc p{font-size:14px;color:rgba(232,244,255,.5);line-height:1.8}
+.ab{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:22px 0 0 22px}
+.bc{background:linear-gradient(to bottom,var(--c1),var(--c2))}.bp{background:linear-gradient(to bottom,var(--c3),var(--c5))}.bg{background:linear-gradient(to bottom,var(--c4),var(--c3))}
+
+/* ═══════════ PAGE 3 — LETTER ═══════════ */
+#p3{flex-direction:column;align-items:center}
+.lw{max-width:760px;width:100%}
+.lp{background:linear-gradient(145deg,rgba(255,255,255,.058),rgba(255,255,255,.018));border:1px solid rgba(255,255,255,.09);border-radius:34px;padding:clamp(40px,6vw,82px);backdrop-filter:blur(36px);position:relative;overflow:hidden}
+.lp::before{content:'\201C';position:absolute;top:-20px;left:28px;font-family:'Playfair Display',serif;font-size:240px;color:rgba(123,47,255,.06);line-height:1;pointer-events:none;font-style:italic}
+.lp::after{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(0,255,229,.05),transparent);border-radius:50%;pointer-events:none}
+.lg{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,52px);font-weight:400;font-style:italic;margin-bottom:32px;background:linear-gradient(135deg,var(--c4),var(--c5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.lb{font-size:clamp(15px,1.5vw,19.5px);line-height:2.1;color:rgba(232,244,255,.68);font-weight:300}
+.lb p{margin-bottom:20px}.lb strong{color:var(--star);font-weight:400;font-style:italic}
+.ls{margin-top:40px;font-family:'Playfair Display',serif;font-size:22px;font-style:italic;color:rgba(232,244,255,.4);text-align:right}
+.tw{display:inline-block;width:2px;height:1.1em;background:var(--c1);vertical-align:middle;margin-left:3px;animation:twc .85s infinite}
+@keyframes twc{0%,100%{opacity:1}50%{opacity:0}}
+.ldc{position:absolute;width:74px;height:74px;pointer-events:none}
+.ldc.tl{top:-1px;left:-1px}.ldc.br{bottom:-1px;right:-1px;transform:rotate(180deg)}
+.p3n{position:absolute;top:48px;left:32px;font-family:'Space Mono',monospace;font-size:130px;font-weight:700;color:rgba(255,255,255,.022);pointer-events:none;line-height:1}
+
+/* ═══════════ PAGE 4 — FLIP CARDS ═══════════ */
+#p4{flex-direction:column;gap:62px}
+.fch{text-align:center}
+.fch h2{font-family:'Playfair Display',serif;font-size:clamp(34px,5vw,72px);font-weight:900;letter-spacing:-1.5px;line-height:1.05}
+.grt{background:linear-gradient(135deg,var(--c4),var(--c5),var(--c3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.fcp{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.22);margin-top:10px}
+.fcg{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1140px;width:100%}
+.fc{height:230px;perspective:1200px;cursor:pointer}
+.fci{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.22,1,.36,1)}
+.fc:hover .fci,.fc.flip .fci{transform:rotateY(180deg)}
+.fcf,.fcb{position:absolute;inset:0;border-radius:24px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px;text-align:center;border:1px solid rgba(255,255,255,.07);overflow:hidden}
+.fcf{background:var(--gl);backdrop-filter:blur(22px)}
+.fcb{background:var(--gl2);backdrop-filter:blur(22px);transform:rotateY(180deg)}
+.ficon{font-size:46px;margin-bottom:12px;transition:transform .3s;display:block}
+.fc:hover .ficon{transform:scale(1.12) rotate(-6deg)}
+.fcf h3{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;line-height:1.35}
+.fcb p{font-size:13px;line-height:1.8;color:rgba(232,244,255,.62)}
+.fcb .bt{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px}
+/* card color variants */
+.v1{border-color:rgba(0,255,229,.22)!important;background:linear-gradient(135deg,rgba(0,255,229,.07),transparent)!important}
+.v2{border-color:rgba(255,45,120,.22)!important;background:linear-gradient(135deg,rgba(255,45,120,.07),transparent)!important}
+.v3{border-color:rgba(123,47,255,.22)!important;background:linear-gradient(135deg,rgba(123,47,255,.07),transparent)!important}
+.v4{border-color:rgba(255,215,0,.22)!important;background:linear-gradient(135deg,rgba(255,215,0,.06),transparent)!important}
+.v5{border-color:rgba(255,154,60,.22)!important;background:linear-gradient(135deg,rgba(255,154,60,.06),transparent)!important}
+.v6{border-color:rgba(0,255,229,.22)!important;background:linear-gradient(135deg,rgba(0,200,255,.07),transparent)!important}
+/* card inner glow on hover */
+.fc::before{content:'';position:absolute;inset:0;border-radius:24px;opacity:0;transition:opacity .4s;pointer-events:none;z-index:3}
+.fc:hover::before{opacity:1}
+.fc:nth-child(1)::before{background:radial-gradient(circle at 50% 0%,rgba(0,255,229,.12),transparent 70%)}
+.fc:nth-child(2)::before{background:radial-gradient(circle at 50% 0%,rgba(255,45,120,.12),transparent 70%)}
+.fc:nth-child(3)::before{background:radial-gradient(circle at 50% 0%,rgba(123,47,255,.12),transparent 70%)}
+.fc:nth-child(4)::before{background:radial-gradient(circle at 50% 0%,rgba(255,215,0,.1),transparent 70%)}
+
+/* ═══════════ PAGE 5 — UNIVERSE OF IRIS ═══════════ */
+#p5{flex-direction:column;gap:60px}
+#constC{position:absolute;inset:0;pointer-events:none;opacity:.65}
+.p5c{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:48px;max-width:1060px;width:100%}
+.p5h{text-align:center}
+.p5h h2{font-family:'Playfair Display',serif;font-size:clamp(36px,5.5vw,74px);font-weight:900;letter-spacing:-1.5px;line-height:1.05}
+.tgd{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:100%}
+.tile{border-radius:26px;padding:34px 32px;position:relative;overflow:hidden;transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .4s;cursor:default}
+.tile:hover{transform:scale(1.04) translateY(-6px);box-shadow:0 36px 90px rgba(0,0,0,.55)}
+.t1{background:linear-gradient(145deg,#1a0533,#2d0b4e);border:1px solid rgba(123,47,255,.28);grid-column:span 2}
+.t2{background:linear-gradient(145deg,#1a0014,#3d0028);border:1px solid rgba(255,45,120,.28)}
+.t3{background:linear-gradient(145deg,#001a1a,#003232);border:1px solid rgba(0,255,229,.28)}
+.t4{background:linear-gradient(145deg,#1a1200,#332700);border:1px solid rgba(255,215,0,.25);grid-column:span 2}
+.tglow{position:absolute;inset:0;opacity:0;transition:opacity .4s;border-radius:inherit;pointer-events:none}
+.tile:hover .tglow{opacity:1}
+.t1 .tglow{background:radial-gradient(circle at 30% 50%,rgba(123,47,255,.2),transparent 70%)}
+.t2 .tglow{background:radial-gradient(circle at 70% 50%,rgba(255,45,120,.2),transparent 70%)}
+.t3 .tglow{background:radial-gradient(circle at 50% 50%,rgba(0,255,229,.15),transparent 70%)}
+.t4 .tglow{background:radial-gradient(circle at 50% 50%,rgba(255,215,0,.13),transparent 70%)}
+.tno{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;opacity:.28;margin-bottom:14px}
+.tile h3{font-family:'Playfair Display',serif;font-size:clamp(17px,2.2vw,28px);font-weight:700;line-height:1.25;margin-bottom:12px}
+.tile p{font-size:clamp(13px,1.15vw,15.5px);line-height:1.9;color:rgba(232,244,255,.48)}
+.temo{font-size:40px;position:absolute;right:28px;top:28px;opacity:.3;transition:opacity .3s,transform .35s}
+.tile:hover .temo{opacity:.85;transform:scale(1.3) rotate(14deg)}
+
+/* ═══════════ PAGE 6 — CELEBRATE ═══════════ */
+#p6{flex-direction:column;align-items:center;text-align:center;gap:46px}
+#fwC{position:absolute;inset:0;z-index:0;pointer-events:none}
+.p6z{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:44px}
+.cakew{position:relative;display:inline-block}
+.cakesvg{width:clamp(150px,19vw,218px);height:auto;filter:drop-shadow(0 0 55px rgba(255,215,0,.38));animation:ckb 3.3s ease-in-out infinite}
+@keyframes ckb{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+.blowz{position:absolute;top:-28px;left:50%;transform:translateX(-50%);cursor:pointer;z-index:10;padding:8px 20px;display:flex;flex-direction:column;align-items:center}
+.blt{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(0,255,229,.4);text-transform:uppercase;white-space:nowrap;transition:color .3s;border:1px solid rgba(0,255,229,.15);padding:6px 14px;border-radius:999px;backdrop-filter:blur(12px)}
+.blowz:hover .blt{color:var(--c1);border-color:rgba(0,255,229,.4);box-shadow:0 0 16px rgba(0,255,229,.1)}
+.p6h{font-family:'Playfair Display',serif;font-size:clamp(36px,5.5vw,78px);font-weight:900;letter-spacing:-1.5px;line-height:1}
+.bnum{font-size:clamp(80px,14vw,164px);display:block;background:linear-gradient(135deg,var(--c4),var(--c5),var(--c3),var(--c2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:.88;filter:drop-shadow(0 0 70px rgba(255,215,0,.24))}
+.cbar{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:660px}
+.cp{padding:11px 24px;border-radius:999px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;border:1px solid;transition:all .35s;cursor:default}
+.cp:hover{transform:scale(1.09);filter:brightness(1.35)}
+.pc{border-color:rgba(0,255,229,.4);color:var(--c1);background:rgba(0,255,229,.05)}
+.pp{border-color:rgba(123,47,255,.4);color:var(--c2);background:rgba(123,47,255,.05)}
+.pr{border-color:rgba(255,45,120,.4);color:var(--c3);background:rgba(255,45,120,.05)}
+.pg{border-color:rgba(255,215,0,.4);color:var(--c4);background:rgba(255,215,0,.05)}
+#wmsg{position:absolute;top:22%;left:50%;transform:translateX(-50%);font-family:'Playfair Display',serif;font-size:clamp(20px,3vw,36px);font-style:italic;color:var(--c4);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .5s;text-shadow:0 0 40px rgba(255,215,0,.6);z-index:20}
+#wmsg.on{opacity:1}
+
+/* ═══════════ PAGE 7 — I MISS YOU ═══════════ */
+#p7{flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative}
+.mbg{position:absolute;inset:0;background:radial-gradient(ellipse at 26% 42%,rgba(255,45,120,.15) 0%,transparent 52%),radial-gradient(ellipse at 74% 60%,rgba(123,47,255,.14) 0%,transparent 52%),radial-gradient(ellipse at center,rgba(10,16,36,.95) 0%,var(--void) 100%)}
+#aurC{position:absolute;inset:0;pointer-events:none;opacity:.6}
+#hrtC{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+#prtC{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.mc{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;gap:36px;max-width:860px}
+.meye{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:8px;color:rgba(255,45,120,.6);text-transform:uppercase}
+.mtitle{font-family:'Playfair Display',serif;font-size:clamp(56px,11.5vw,158px);font-weight:900;font-style:italic;line-height:.82;letter-spacing:-3px}
+.w1,.w2{display:block;color:rgba(232,244,255,.88)}
+.hrt{display:block;font-style:normal;font-size:clamp(65px,13.5vw,168px);animation:hb 1.6s ease-in-out infinite;background:linear-gradient(135deg,var(--c3),var(--c5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 55px rgba(255,45,120,.6))}
+@keyframes hb{0%,100%{transform:scale(1)}15%{transform:scale(1.15)}30%{transform:scale(1)}46%{transform:scale(1.1)}60%{transform:scale(1)}}
+/* distance bar */
+.dist{display:flex;align-items:center;gap:22px}
+.dp{width:11px;height:11px;border-radius:50%;animation:dpp 2.2s infinite}
+.dp1{background:var(--c1);box-shadow:0 0 16px var(--c1)}
+.dp2{background:var(--c3);box-shadow:0 0 16px var(--c3);animation-delay:.9s}
+@keyframes dpp{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+.dline{width:clamp(110px,15vw,200px);height:1px;background:linear-gradient(90deg,var(--c1),rgba(255,45,120,.5),var(--c3));position:relative}
+.dplane{position:absolute;top:-11px;font-size:15px;animation:dfly 3.8s ease-in-out infinite}
+@keyframes dfly{0%{left:0%;opacity:0}8%{opacity:1}90%{opacity:1}100%{left:88%;opacity:0}}
+.dlbl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(255,255,255,.25);text-transform:uppercase;margin-top:7px;text-align:center}
+.msub{font-size:clamp(16px,2vw,24px);font-style:italic;color:rgba(232,244,255,.45);line-height:1.8;max-width:600px}
+.mq{font-family:'Playfair Display',serif;font-size:clamp(15px,1.7vw,21px);font-style:italic;color:rgba(232,244,255,.3);padding:0 40px;max-width:660px;line-height:2;position:relative}
+.mq::before{content:'—';position:absolute;left:8px;top:0;color:rgba(255,45,120,.4);font-size:20px}
+.mq::after{content:'—';position:absolute;right:8px;bottom:0;color:rgba(255,45,120,.4);font-size:20px}
+.mseal{padding:15px 36px;border-radius:999px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:4px;color:rgba(255,45,120,.52);text-transform:uppercase;border:1px solid rgba(255,45,120,.18);animation:sg 3.5s infinite;cursor:default;transition:all .3s}
+.mseal:hover{border-color:rgba(255,45,120,.45);color:rgba(255,45,120,.85);box-shadow:0 0 28px rgba(255,45,120,.12)}
+@keyframes sg{0%,100%{border-color:rgba(255,45,120,.18);box-shadow:0 0 0 transparent}50%{border-color:rgba(255,45,120,.4);box-shadow:0 0 20px rgba(255,45,120,.09)}}
+/* floating hearts */
+.fh{position:absolute;pointer-events:none;animation:fha linear infinite;opacity:0}
+@keyframes fha{0%{opacity:0;transform:translateY(40px) scale(.4) rotate(0)}9%{opacity:.6}85%{opacity:.25}100%{opacity:0;transform:translateY(-130vh) scale(1.3) rotate(720deg)}}
+/* particles */
+.mpt{position:absolute;border-radius:50%;pointer-events:none;animation:mpa linear infinite;opacity:0}
+@keyframes mpa{0%{opacity:0;transform:translateY(100vh) scale(0)}8%{opacity:.7}88%{opacity:.22}100%{opacity:0;transform:translateY(-40px) scale(1.8)}}
+
+/* ═══════════ SOUND BTN ═══════════ */
+#snd{position:fixed;bottom:28px;right:28px;z-index:600;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;backdrop-filter:blur(18px);transition:all .3s;color:rgba(255,255,255,.4)}
+#snd:hover{border-color:var(--c1);color:var(--c1);box-shadow:0 0 20px rgba(0,255,229,.15);transform:scale(1.08)}
+#snd.on{color:var(--c1);border-color:rgba(0,255,229,.35);box-shadow:0 0 16px rgba(0,255,229,.2)}
+
+/* ═══════════ RESPONSIVE ═══════════ */
+@media(max-width:900px){
+  .p2g{grid-template-columns:1fr}
+  .tgd{grid-template-columns:1fr 1fr}
+  .t1,.t4{grid-column:span 2}
+  .fcg{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:560px){
+  .page{padding:60px 20px}
+  .fcg{grid-template-columns:1fr}
+  .tgd{grid-template-columns:1fr}
+  .t1,.t4{grid-column:span 1}
+  .navd{display:none}
+  #snd{bottom:20px;right:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- ── CURSOR ── -->
+<div id="cur">
+  <div id="cdot"></div>
+  <div id="cring"></div>
+</div>
+
+<!-- ── SCROLL PROGRESS ── -->
+<div id="spbar"></div>
+
+<!-- ── GLOBAL STAR BG ── -->
+<canvas id="bgCanvas"></canvas>
+
+<!-- ── LOADER ── -->
+<div id="loader">
+  <div class="ld-eye">Loading something beautiful</div>
+  <div class="ld-name">Iris</div>
+  <div class="ld-bar"><div class="ld-fill"></div></div>
+  <div class="ld-pct" id="ldpct">0%</div>
+</div>
+
+<!-- ── NAV ── -->
+<nav class="navd">
+  <div class="nd on" onclick="gp(1)"><span class="nd-lbl">Enter</span></div>
+  <div class="nd" onclick="gp(2)"><span class="nd-lbl">Wishes</span></div>
+  <div class="nd" onclick="gp(3)"><span class="nd-lbl">Letter</span></div>
+  <div class="nd" onclick="gp(4)"><span class="nd-lbl">Flip Cards</span></div>
+  <div class="nd" onclick="gp(5)"><span class="nd-lbl">About Iris</span></div>
+  <div class="nd" onclick="gp(6)"><span class="nd-lbl">Celebrate</span></div>
+  <div class="nd" onclick="gp(7)"><span class="nd-lbl">Miss You</span></div>
+</nav>
+
+<!-- ════════════════════════════════════
+     PAGE 1 — COSMIC ENTRY
+════════════════════════════════════ -->
+<section class="page" id="p1">
+  <div class="orb" style="width:680px;height:680px;background:var(--c2);top:-240px;left:-240px;animation-duration:24s"></div>
+  <div class="orb" style="width:440px;height:440px;background:var(--c3);bottom:-120px;right:-120px;animation-duration:18s"></div>
+  <div class="orb" style="width:350px;height:350px;background:var(--c1);top:35%;left:55%;animation-duration:30s;opacity:.08"></div>
+  <div class="grd"></div>
+  <div class="dring" style="width:540px;height:540px;border-color:rgba(0,255,229,.05);animation-duration:34s"></div>
+  <div class="dring" style="width:780px;height:780px;border-color:rgba(123,47,255,.04);animation-duration:52s;animation-direction:reverse"></div>
+  <div class="dring" style="width:340px;height:340px;border-color:rgba(255,45,120,.06);animation-duration:22s"></div>
+  <span class="pnum">01 / 07</span>
+
+  <div class="p1e">A Cosmic Birthday Message For</div>
+  <h1 class="p1t">
+    <span class="glitch" data-t="Happy">Happy</span><br>
+    Birthday<br>
+    <span class="ng">Nataly</span>
+  </h1>
+  <p class="p1s">Also known to the universe as <em>Iris</em></p>
+  <p class="p1d">✦ &nbsp; You are celebrated today and always &nbsp; ✦</p>
+
+  <div class="scrl">
+    <span>scroll</span>
+    <div class="scrl-ln"></div>
+  </div>
+
+  <div class="tkw">
+    <div class="tki">
+      <span class="ti">Happy Birthday Iris</span><span class="ti a">✦</span>
+      <span class="ti">You Are Extraordinary</span><span class="ti a">✦</span>
+      <span class="ti b">Make A Wish</span><span class="ti a">✦</span>
+      <span class="ti">Today Is Yours</span><span class="ti a">✦</span>
+      <span class="ti b">Born To Shine</span><span class="ti a">✦</span>
+      <span class="ti">Forever Celebrated</span><span class="ti a">✦</span>
+      <span class="ti">Nataly A.K.A. Iris</span><span class="ti a">✦</span>
+      <span class="ti">Happy Birthday Iris</span><span class="ti a">✦</span>
+      <span class="ti">You Are Extraordinary</span><span class="ti a">✦</span>
+      <span class="ti b">Make A Wish</span><span class="ti a">✦</span>
+      <span class="ti">Today Is Yours</span><span class="ti a">✦</span>
+      <span class="ti b">Born To Shine</span><span class="ti a">✦</span>
+      <span class="ti">Forever Celebrated</span><span class="ti a">✦</span>
+      <span class="ti">Nataly A.K.A. Iris</span><span class="ti a">✦</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     PAGE 2 — THREE WISHES
+════════════════════════════════════ -->
+<section class="page" id="p2">
+  <div class="nbl" style="background:radial-gradient(ellipse at 16% 55%,rgba(123,47,255,.08) 0%,transparent 55%),radial-gradient(ellipse at 84% 48%,rgba(255,45,120,.08) 0%,transparent 55%)"></div>
+  <div style="position:absolute;top:6%;right:-50px;font-family:'Playfair Display',serif;font-size:clamp(120px,18vw,260px);font-weight:900;font-style:italic;opacity:.022;pointer-events:none;color:white;animation:obf 10s ease-in-out infinite">N</div>
+  <span class="pnum">02 / 07</span>
+
+  <div class="p2g">
+    <div style="display:flex;flex-direction:column">
+      <div class="tag rv" style="color:var(--c2)">02 — Birthday Wishes</div>
+      <div class="divln rv d1" style="background:linear-gradient(90deg,var(--c2),var(--c1))"></div>
+      <h2 class="p2h rv d2">Three wishes<br>for <em>you</em>,<br>Iris.</h2>
+      <p class="p2b rv d3">On this very special day, across every mile between us, I'm sending you the brightest wishes I have — wrapped in starlight and delivered by the universe itself.</p>
+    </div>
+    <div class="wr">
+      <div class="wc rv d2">
+        <div class="ab bc"></div>
+        <span class="ic">✨</span>
+        <h3>Endless Joy</h3>
+        <p>May every morning feel like the first day of summer — full of light, warmth, and the kind of happiness that fills every corner of your beautiful soul.</p>
+      </div>
+      <div class="wc rv d3">
+        <div class="ab bp"></div>
+        <span class="ic">🌸</span>
+        <h3>Bold Dreams</h3>
+        <p>May every dream you carry, no matter how wild or quietly kept, find its way into reality this year. You were made for exactly the life you imagine.</p>
+      </div>
+      <div class="wc rv d4">
+        <div class="ab bg"></div>
+        <span class="ic">💛</span>
+        <h3>Pure Love</h3>
+        <p>May love surround you — in your friends, in your quiet moments, in every small beautiful thing you encounter each single day.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     PAGE 3 — THE LETTER
+════════════════════════════════════ -->
+<section class="page" id="p3">
+  <div class="nbl" style="background:radial-gradient(ellipse at center,rgba(0,255,229,.03) 0%,transparent 65%)"></div>
+  <div class="p3n">03</div>
+  <span class="pnum">03 / 07</span>
+
+  <div class="lw">
+    <div class="tag rv" style="text-align:center;color:var(--c1);margin-bottom:22px">A Note From Across The Miles</div>
+    <div class="lp rv d1">
+      <svg class="ldc tl" viewBox="0 0 74 74" fill="none">
+        <path d="M0 37 Q0 0 37 0" stroke="rgba(0,255,229,.2)" stroke-width="1"/>
+        <circle cx="4" cy="4" r="2.2" fill="rgba(0,255,229,.3)"/>
+        <circle cx="18" cy="5" r="1.2" fill="rgba(0,255,229,.15)"/>
+        <circle cx="5" cy="18" r="1.2" fill="rgba(0,255,229,.15)"/>
+        <circle cx="30" cy="4" r=".8" fill="rgba(0,255,229,.1)"/>
+      </svg>
+      <svg class="ldc br" viewBox="0 0 74 74" fill="none">
+        <path d="M0 37 Q0 0 37 0" stroke="rgba(255,45,120,.2)" stroke-width="1"/>
+        <circle cx="4" cy="4" r="2.2" fill="rgba(255,45,120,.3)"/>
+        <circle cx="18" cy="5" r="1.2" fill="rgba(255,45,120,.15)"/>
+        <circle cx="5" cy="18" r="1.2" fill="rgba(255,45,120,.15)"/>
+        <circle cx="30" cy="4" r=".8" fill="rgba(255,45,120,.1)"/>
+      </svg>
+
+      <div class="lg">Dear Nataly,</div>
+      <div class="lb">
+        <p>They say the universe is 93 billion light-years wide, and yet somehow — somehow — it folded itself just right so our paths could cross. <strong>That's the most beautiful thing I know.</strong></p>
+        <p>Today is the day you were given to this world, and whether you know it or not, the world has been brighter for it ever since. You carry this quiet kind of magic with you, Iris — the kind that makes rooms feel warmer and moments feel like they mean something more.</p>
+        <p>Distance is just geography. What we have — the laughs, the late-night conversations, the way we just <em>get</em> each other — that doesn't shrink with miles. If anything, it grows. <strong>You grow.</strong></p>
+        <p>On your birthday I want you to feel every ounce of love I'm sending your way. I want you to feel celebrated the way you deserve — loud and soft at the same time, just like you are.</p>
+        <p>Happy birthday, Iris. Here's to another year of being absolutely, unmistakably, wonderfully <em>you</em>.<span class="tw"></span></p>
+      </div>
+      <div class="ls">With so much love, always ✦</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     PAGE 4 — FLIP CARDS
+════════════════════════════════════ -->
+<section class="page" id="p4">
+  <div class="nbl" style="background:radial-gradient(ellipse at 65% 28%,rgba(255,215,0,.05) 0%,transparent 56%)"></div>
+  <span class="pnum">04 / 07</span>
+
+  <div style="display:flex;flex-direction:column;gap:60px;max-width:1140px;width:100%">
+    <div class="fch">
+      <div class="tag rv" style="color:var(--c5);text-align:center">04 — Flip to discover</div>
+      <h2 class="rv d1"><span class="grt">Things that are</span><br><em style="color:rgba(232,244,255,.88);font-style:italic">so very you</em></h2>
+      <p class="fcp rv d2">hover or tap each card</p>
+    </div>
+    <div class="fcg rv d2">
+      <div class="fc">
+        <div class="fci">
+          <div class="fcf v1"><span class="ficon">☀️</span><h3>The way you light up a room</h3></div>
+          <div class="fcb v1"><div class="bt" style="color:var(--c1)">Your glow</div><p>You walk in and something just shifts — like the air decides to be warmer. Completely involuntary on your part, which makes it even more extraordinary.</p></div>
+        </div>
+      </div>
+      <div class="fc">
+        <div class="fci">
+          <div class="fcf v2"><span class="ficon">😂</span><h3>Your laugh</h3></div>
+          <div class="fcb v2"><div class="bt" style="color:var(--c3)">Pure magic</div><p>Genuinely one of the best sounds in existence. Contagious, warm, and capable of curing a bad day from a thousand miles away.</p></div>
+        </div>
+      </div>
+      <div class="fc">
+        <div class="fci">
+          <div class="fcf v3"><span class="ficon">🌊</span><h3>Your depth</h3></div>
+          <div class="fcb v3"><div class="bt" style="color:var(--c2)">The real you</div><p>You don't do surface-level. Every conversation is real, rich, and remembered. You make people feel seen — truly seen. That's rare.</p></div>
+        </div>
+      </div>
+      <div class="fc">
+        <div class="fci">
+          <div class="fcf v4"><span class="ficon">💪</span><h3>Your strength</h3></div>
+          <div class="fcb v4"><div class="bt" style="color:var(--c4)">Unbreakable</div><p>You've walked through fire more than once and come out more yourself every time. The quiet kind of resilience that leaves people in awe.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     PAGE 5 — UNIVERSE OF IRIS
+════════════════════════════════════ -->
+<section class="page" id="p5">
+  <canvas id="constC"></canvas>
+  <div class="nbl" style="background:radial-gradient(ellipse at center,rgba(8,18,55,.65),transparent 72%)"></div>
+  <span class="pnum">05 / 07</span>
+
+  <div class="p5c">
+    <div class="p5h">
+      <div class="tag rv" style="color:var(--c1);text-align:center">05 — The Universe of Iris</div>
+      <h2 class="rv d1">
+        <span style="background:linear-gradient(135deg,var(--c1),var(--c2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Moments &</span>
+        <em style="color:rgba(232,244,255,.88);font-style:italic"> Magic</em>
+      </h2>
+    </div>
+    <div class="tgd">
+      <div class="tile t1 rv d1">
+        <div class="tglow"></div>
+        <div class="tno">01</div>
+        <h3>You radiate light</h3>
+        <p>There's something about you that just hits different. Rooms, people, moments — they're all better because you were in them. That's not a small gift. That's rare and irreplaceable.</p>
+        <span class="temo">☀️</span>
+      </div>
+      <div class="tile t2 rv d2">
+        <div class="tglow"></div>
+        <div class="tno">02</div>
+        <h3>That laugh though</h3>
+        <p>One of the genuinely best sounds. Could fix absolutely anything.</p>
+        <span class="temo">✨</span>
+      </div>
+      <div class="tile t3 rv d3">
+        <div class="tglow"></div>
+        <div class="tno">03</div>
+        <h3>Real depth</h3>
+        <p>Every conversation is an event. You don't do small talk — you do soul talk.</p>
+        <span class="temo">🌊</span>
+      </div>
+      <div class="tile t4 rv d2">
+        <div class="tglow"></div>
+        <div class="tno">04</div>
+        <h3>Your strength — even when you don't see it yourself</h3>
+        <p>You've walked through fire more than once and come out more yourself every time. The kind of quiet resilience that makes people lean in, look closer, and think: <em>wow</em>. That's you, Iris. That's always been you.</p>
+        <span class="temo">💛</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     PAGE 6 — CELEBRATE
+════════════════════════════════════ -->
+<section class="page" id="p6">
+  <canvas id="fwC"></canvas>
+  <div class="nbl" style="background:radial-gradient(ellipse at center,rgba(255,45,120,.06) 0%,transparent 66%)"></div>
+  <span class="pnum">06 / 07</span>
+  <div id="wmsg">✨ Wish granted, Iris! ✨</div>
+
+  <div class="p6z">
+    <div class="tag rv" style="color:var(--c5);text-align:center">06 — Celebrate</div>
+    <div class="cakew rv d1">
+      <div class="blowz" id="blowz">
+        <span class="blt">click to blow candles</span>
+      </div>
+      <!-- SVG CAKE -->
+      <svg class="cakesvg" id="cakesvg" viewBox="0 0 200 230" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g id="flames">
+          <ellipse cx="70" cy="28" rx="7.5" ry="13" fill="url(#fl1)" opacity=".93">
+            <animate attributeName="ry" values="13;17;13;10;13" dur="1.2s" repeatCount="indefinite"/>
+            <animate attributeName="cx" values="70;68.5;71.5;70;68.5;70" dur=".8s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="70" cy="36" rx="4" ry="5" fill="rgba(255,200,0,.25)"/>
+          <ellipse cx="100" cy="20" rx="7.5" ry="14" fill="url(#fl2)" opacity=".93">
+            <animate attributeName="ry" values="14;18;14;11;14" dur="1s" repeatCount="indefinite"/>
+            <animate attributeName="cx" values="100;101.5;98.5;100;101.5;100" dur=".75s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="100" cy="28" rx="4" ry="5" fill="rgba(255,150,0,.2)"/>
+          <ellipse cx="130" cy="28" rx="7.5" ry="13" fill="url(#fl3)" opacity=".93">
+            <animate attributeName="ry" values="13;16;13;10;13" dur="1.4s" repeatCount="indefinite"/>
+            <animate attributeName="cx" values="130;128.5;131.5;130;128.5;130" dur=".9s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="130" cy="36" rx="4" ry="5" fill="rgba(0,220,210,.2)"/>
+        </g>
+        <!-- Candles -->
+        <rect x="65" y="40" width="10" height="28" rx="3" fill="#7b2fff"/>
+        <rect x="65" y="40" width="10" height="8" rx="3" fill="rgba(255,255,255,.15)"/>
+        <rect x="95" y="40" width="10" height="28" rx="3" fill="#ff2d78"/>
+        <rect x="95" y="40" width="10" height="8" rx="3" fill="rgba(255,255,255,.15)"/>
+        <rect x="125" y="40" width="10" height="28" rx="3" fill="#00b8a0"/>
+        <rect x="125" y="40" width="10" height="8" rx="3" fill="rgba(255,255,255,.15)"/>
+        <!-- Top tier -->
+        <rect x="36" y="66" width="128" height="50" rx="14" fill="url(#ck1)"/>
+        <rect x="36" y="66" width="128" height="18" rx="14" fill="url(#fr1)"/>
+        <!-- Top tier decoration -->
+        <circle cx="75" cy="100" r="5" fill="rgba(255,215,0,.7)"/>
+        <circle cx="100" cy="96" r="4" fill="rgba(255,45,120,.7)"/>
+        <circle cx="125" cy="100" r="5" fill="rgba(0,255,229,.7)"/>
+        <text x="100" y="105" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.5)" font-family="serif">★ ★ ★</text>
+        <!-- Frosting drips top -->
+        <path d="M50 84 Q52 96 50 104" stroke="white" stroke-width="3.5" stroke-linecap="round" opacity=".5"/>
+        <path d="M78 84 Q80 97 78 106" stroke="white" stroke-width="3.5" stroke-linecap="round" opacity=".5"/>
+        <path d="M122 84 Q124 96 122 105" stroke="white" stroke-width="3.5" stroke-linecap="round" opacity=".5"/>
+        <path d="M150 84 Q152 94 150 102" stroke="white" stroke-width="3.5" stroke-linecap="round" opacity=".5"/>
+        <!-- Bottom tier -->
+        <rect x="16" y="114" width="168" height="62" rx="15" fill="url(#ck2)"/>
+        <rect x="16" y="114" width="168" height="20" rx="15" fill="url(#fr2)"/>
+        <!-- Bottom tier gems -->
+        <circle cx="50" cy="152" r="5.5" fill="rgba(255,215,0,.75)"/>
+        <circle cx="80" cy="147" r="4" fill="rgba(255,45,120,.75)"/>
+        <circle cx="100" cy="153" r="3" fill="rgba(255,255,255,.4)"/>
+        <circle cx="120" cy="147" r="4" fill="rgba(0,255,229,.75)"/>
+        <circle cx="150" cy="152" r="5.5" fill="rgba(123,47,255,.75)"/>
+        <!-- Frosting drips bottom -->
+        <path d="M30 134 Q32 148 30 157" stroke="white" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+        <path d="M62 134 Q64 150 62 160" stroke="white" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+        <path d="M100 134 Q102 148 100 158" stroke="white" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+        <path d="M138 134 Q140 149 138 159" stroke="white" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+        <path d="M165 134 Q167 146 165 155" stroke="white" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+        <!-- Plate -->
+        <ellipse cx="100" cy="178" rx="92" ry="11" fill="url(#plt)"/>
+        <ellipse cx="80" cy="174" rx="36" ry="4" fill="rgba(255,255,255,.12)"/>
+        <ellipse cx="100" cy="180" rx="88" ry="5" fill="rgba(0,0,0,.3)"/>
+        <defs>
+          <radialGradient id="fl1" cx="50%" cy="60%"><stop offset="0%" stop-color="#fff8a0"/><stop offset="48%" stop-color="#ffb800"/><stop offset="100%" stop-color="#ff4800" stop-opacity="0"/></radialGradient>
+          <radialGradient id="fl2" cx="50%" cy="60%"><stop offset="0%" stop-color="#fff8a0"/><stop offset="48%" stop-color="#ff9a3c"/><stop offset="100%" stop-color="#ff2d78" stop-opacity="0"/></radialGradient>
+          <radialGradient id="fl3" cx="50%" cy="60%"><stop offset="0%" stop-color="#dfffff"/><stop offset="48%" stop-color="#00ffe5"/><stop offset="100%" stop-color="#7b2fff" stop-opacity="0"/></radialGradient>
+          <linearGradient id="ck1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3e1162"/><stop offset="100%" stop-color="#1c0538"/></linearGradient>
+          <linearGradient id="fr1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#e8c0ff"/><stop offset="50%" stop-color="#ffffff"/><stop offset="100%" stop-color="#c4a0ff"/></linearGradient>
+          <linearGradient id="ck2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1c0035"/><stop offset="100%" stop-color="#0d0022"/></linearGradient>
+          <linearGradient id="fr2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ffaadf"/><stop offset="40%" stop-color="#ffffff"/><stop offset="70%" stop-color="#aaefff"/><stop offset="100%" stop-color="#cc88ff"/></linearGradient>
+          <linearGradient id="plt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2c2c50"/><stop offset="100%" stop-color="#0e0e22"/></linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="p6h rv d2">
+      <span class="bnum">HBD</span>
+      Iris ✦
+    </div>
+    <div class="cbar rv d3">
+      <span class="cp pc">Cheers to you</span>
+      <span class="cp pp">Make a wish</span>
+      <span class="cp pr">You deserve this</span>
+      <span class="cp pg">Another year of magic</span>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     PAGE 7 — I MISS YOU
+════════════════════════════════════ -->
+<section class="page" id="p7">
+  <div class="mbg"></div>
+  <canvas id="aurC"></canvas>
+  <div id="hrtC"></div>
+  <div id="prtC"></div>
+  <span class="pnum" style="color:rgba(255,45,120,.15)">07 / 07</span>
+
+  <div class="mc">
+    <div class="meye rv">07 — And also, always...</div>
+
+    <h2 class="mtitle rv d1">
+      <span class="w1">I</span>
+      <span class="hrt">♥</span>
+      <span class="w2">Miss&nbsp;You</span>
+    </h2>
+
+    <div class="dist rv d2">
+      <div>
+        <div class="dp dp1"></div>
+        <div class="dlbl">You</div>
+      </div>
+      <div>
+        <div class="dline">
+          <span class="dplane">✈</span>
+        </div>
+      </div>
+      <div>
+        <div class="dp dp2"></div>
+        <div class="dlbl">Me</div>
+      </div>
+    </div>
+
+    <p class="msub rv d3">
+      The miles are real, but so is this — and this matters more.<br>
+      Missing you is just love with nowhere to go for now.
+    </p>
+
+    <div class="mq rv d4">
+      The stars are the same sky we're both looking at, even when we're far apart. So look up sometimes, Iris. I'm looking back.
+    </div>
+
+    <div class="mseal rv d5">Until we're in the same room again ✦</div>
+  </div>
+</section>
+
+<!-- ── SOUND BUTTON ── -->
+<button id="snd" title="Toggle ambient music">♪</button>
+
+<!-- ══════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════ -->
+<script>
+/* ── CURSOR ── */
+const cdot=document.getElementById('cdot'),cring=document.getElementById('cring');
+let MX=0,MY=0,RX=0,RY=0;
+document.addEventListener('mousemove',e=>{MX=e.clientX;MY=e.clientY;cdot.style.left=MX+'px';cdot.style.top=MY+'px'});
+document.addEventListener('click',()=>{cdot.classList.add('pop');setTimeout(()=>cdot.classList.remove('pop'),280)});
+(function anim(){RX+=(MX-RX)*.1;RY+=(MY-RY)*.1;cring.style.left=RX+'px';cring.style.top=RY+'px';requestAnimationFrame(anim)})();
+document.querySelectorAll('a,button,.wc,.tile,.fc,.cp,.nd,.blowz,.mseal').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cring.classList.add('xl'));
+  el.addEventListener('mouseleave',()=>cring.classList.remove('xl'));
+});
+
+/* ── LOADER ── */
+let pct=0;const pEl=document.getElementById('ldpct');
+const lt=setInterval(()=>{
+  pct=Math.min(100,pct+Math.floor(Math.random()*11+3));
+  pEl.textContent=pct+'%';
+  if(pct>=100){clearInterval(lt);setTimeout(()=>document.getElementById('loader').classList.add('out'),350)}
+},110);
+
+/* ── SCROLL PROGRESS BAR ── */
+window.addEventListener('scroll',()=>{
+  const s=document.documentElement.scrollTop,h=document.documentElement.scrollHeight-window.innerHeight;
+  document.getElementById('spbar').style.width=(s/h*100)+'%';
+},{passive:true});
+
+/* ── GLOBAL STARFIELD ── */
+const bgC=document.getElementById('bgCanvas'),bgX=bgC.getContext('2d');
+let S=[],BW,BH;
+function rBG(){BW=bgC.width=window.innerWidth;BH=bgC.height=window.innerHeight;
+  S=Array.from({length:300},()=>({x:Math.random()*BW,y:Math.random()*BH,r:Math.random()*1.7+.3,o:Math.random()*.75+.1,s:Math.random()*.5+.1,d:Math.random()>.5?1:-1,col:Math.random()>.9?'rgba(255,215,0,':'rgba(200,222,255,'}));}
+rBG();window.addEventListener('resize',rBG);
+(function aStar(){bgX.clearRect(0,0,BW,BH);S.forEach(s=>{s.o+=s.s*.005*s.d;if(s.o>.8||s.o<.04)s.d*=-1;bgX.beginPath();bgX.arc(s.x,s.y,s.r,0,Math.PI*2);bgX.fillStyle=s.col+s.o+')';bgX.fill()});requestAnimationFrame(aStar)})();
+
+/* ── NAV ── */
+const PGS=[1,2,3,4,5,6,7].map(i=>document.getElementById('p'+i));
+const NDS=document.querySelectorAll('.nd');
+function gp(n){document.getElementById('p'+n).scrollIntoView({behavior:'smooth'})}
+const pgObs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){const i=PGS.indexOf(e.target);NDS.forEach((d,j)=>d.classList.toggle('on',i===j))}})},{threshold:.45});
+PGS.forEach(p=>pgObs.observe(p));
+
+/* ── SCROLL REVEAL ── */
+const rvObs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')})},{threshold:.11});
+document.querySelectorAll('.rv').forEach(e=>rvObs.observe(e));
+
+/* ── FLIP CARDS ── */
+document.querySelectorAll('.fc').forEach(c=>c.addEventListener('click',()=>c.classList.toggle('flip')));
+
+/* ── CONSTELLATION (P5) ── */
+const cc=document.getElementById('constC'),cx=cc.getContext('2d');
+let CN=[],CW,CH;
+function rCC(){CW=cc.width=document.getElementById('p5').offsetWidth;CH=cc.height=document.getElementById('p5').offsetHeight;
+  CN=Array.from({length:70},()=>({x:Math.random()*CW,y:Math.random()*CH,vx:(Math.random()-.5)*.28,vy:(Math.random()-.5)*.28,r:Math.random()*2+.5,o:Math.random()*.85+.15}));}
+rCC();window.addEventListener('resize',rCC);
+(function aCon(){cx.clearRect(0,0,CW,CH);
+  CN.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>CW)n.vx*=-1;if(n.y<0||n.y>CH)n.vy*=-1});
+  CN.forEach((a,i)=>{CN.slice(i+1).forEach(b=>{const d=Math.hypot(a.x-b.x,a.y-b.y);if(d<120){cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.strokeStyle=`rgba(0,255,229,${(1-d/120)*.18})`;cx.lineWidth=.8;cx.stroke()}})});
+  CN.forEach(n=>{cx.beginPath();cx.arc(n.x,n.y,n.r,0,Math.PI*2);cx.fillStyle=`rgba(210,235,255,${n.o})`;cx.shadowColor='rgba(0,255,229,.6)';cx.shadowBlur=7;cx.fill();cx.shadowBlur=0});
+  requestAnimationFrame(aCon)})();
+
+/* ── FIREWORKS (P6) ── */
+const fwEl=document.getElementById('fwC'),fwX=fwEl.getContext('2d');
+let FP=[],FW_ON=false;
+function rFW(){fwEl.width=document.getElementById('p6').offsetWidth;fwEl.height=document.getElementById('p6').offsetHeight}
+rFW();window.addEventListener('resize',rFW);
+const PAL=['#00ffe5','#7b2fff','#ff2d78','#ffd700','#ff9a3c','#ffffff','#e0ffff','#ffb3d9','#b3f0ff'];
+function burst(x,y,big){const n=big?120:(60+Math.random()*45);for(let i=0;i<n;i++){const a=(Math.PI*2/n)*i+Math.random()*.5,sp=(big?3.5:2.2)+Math.random()*(big?8:5.5);FP.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1,decay:.011+Math.random()*.023,r:1.6+Math.random()*2.6,col:PAL[Math.floor(Math.random()*PAL.length)],trail:[]})}}
+const fwObs=new IntersectionObserver(es=>{es.forEach(e=>{FW_ON=e.isIntersecting;if(FW_ON)autoFW()})},{threshold:.25});
+fwObs.observe(document.getElementById('p6'));
+function autoFW(){if(!FW_ON)return;burst(fwEl.width*(.18+Math.random()*.64),fwEl.height*(.08+Math.random()*.55));setTimeout(autoFW,600+Math.random()*850)}
+(function fwLoop(){fwX.clearRect(0,0,fwEl.width,fwEl.height);FP=FP.filter(p=>p.life>0);
+  FP.forEach(p=>{p.trail.push({x:p.x,y:p.y});if(p.trail.length>6)p.trail.shift();p.x+=p.vx;p.y+=p.vy;p.vy+=.075;p.vx*=.97;p.life-=p.decay;
+    const hx=p.col,r=parseInt(hx.slice(1,3),16),g=parseInt(hx.slice(3,5),16),b=parseInt(hx.slice(5,7),16);
+    p.trail.forEach((t,i)=>{const a=(i/p.trail.length)*p.life*.42;fwX.beginPath();fwX.arc(t.x,t.y,p.r*(i/p.trail.length)*.65,0,Math.PI*2);fwX.fillStyle=`rgba(${r},${g},${b},${a})`;fwX.fill()});
+    fwX.beginPath();fwX.arc(p.x,p.y,p.r,0,Math.PI*2);fwX.fillStyle=`rgba(${r},${g},${b},${p.life})`;fwX.shadowColor=p.col;fwX.shadowBlur=11;fwX.fill();fwX.shadowBlur=0});
+  requestAnimationFrame(fwLoop)})();
+
+/* ── BLOW CANDLES ── */
+let blown=false;
+document.getElementById('blowz').addEventListener('click',()=>{
+  if(blown)return;blown=true;
+  document.getElementById('flames').style.display='none';
+  document.getElementById('blowz').querySelector('.blt').textContent='🎂 Wish made!';
+  const msg=document.getElementById('wmsg');msg.classList.add('on');
+  setTimeout(()=>msg.classList.remove('on'),3500);
+  for(let i=0;i<6;i++)setTimeout(()=>burst(fwEl.width*.5,fwEl.height*.38,true),i*180);
+});
+
+/* ── AURORA (P7) ── */
+const aEl=document.getElementById('aurC'),aX=aEl.getContext('2d');
+let AW,AH,AT=0;
+function rAur(){AW=aEl.width=document.getElementById('p7').offsetWidth;AH=aEl.height=document.getElementById('p7').offsetHeight}
+rAur();window.addEventListener('resize',rAur);
+const waves=[
+  {y:.22,amp:70,freq:.007,spd:1,ca:'rgba(255,45,120,',cb:'rgba(123,47,255,'},
+  {y:.32,amp:90,freq:.005,spd:-.65,ca:'rgba(0,255,229,',cb:'rgba(123,47,255,'},
+  {y:.44,amp:55,freq:.009,spd:1.3,ca:'rgba(255,154,60,',cb:'rgba(255,45,120,'},
+  {y:.58,amp:40,freq:.012,spd:-.9,ca:'rgba(123,47,255,',cb:'rgba(0,200,255,'},
+];
+(function aAur(){aX.clearRect(0,0,AW,AH);const t=AT*.0028;
+  waves.forEach(w=>{
+    const grd=aX.createLinearGradient(0,0,AW,0);
+    grd.addColorStop(0,'transparent');grd.addColorStop(.18,w.ca+'.28)');
+    grd.addColorStop(.5,w.cb+'.22)');grd.addColorStop(.82,w.ca+'.2)');grd.addColorStop(1,'transparent');
+    aX.beginPath();aX.moveTo(0,AH);
+    for(let x=0;x<=AW;x+=3){const y=AH*w.y+Math.sin(x*w.freq+t*w.spd)*w.amp+Math.sin(x*w.freq*.4+t*w.spd*.6)*w.amp*.35;aX.lineTo(x,y)}
+    aX.lineTo(AW,AH);aX.closePath();aX.fillStyle=grd;aX.fill();
+  });AT++;requestAnimationFrame(aAur)})();
+
+/* ── FLOATING HEARTS (P7) ── */
+const HC=document.getElementById('hrtC');
+const heartCols=['rgba(255,45,120,','rgba(255,154,60,','rgba(123,47,255,'];
+setInterval(()=>{const h=document.createElement('div');h.className='fh';h.textContent=Math.random()>.45?'♥':'♡';const col=heartCols[Math.floor(Math.random()*heartCols.length)];h.style.cssText=`left:${Math.random()*100}%;bottom:0;color:${col}${.25+Math.random()*.55});font-size:${12+Math.random()*22}px;animation-duration:${5+Math.random()*9}s`;HC.appendChild(h);setTimeout(()=>h.remove(),14000)},550);
+
+/* ── MISS YOU PARTICLES (P7) ── */
+const PC=document.getElementById('prtC');
+const pcols=['#ff2d78','#7b2fff','#ff9a3c','#ffd700','#00ffe5'];
+for(let i=0;i<55;i++){const p=document.createElement('div');p.className='mpt';p.style.cssText=`left:${Math.random()*100}%;bottom:0;width:${2+Math.random()*3.5}px;height:${2+Math.random()*3.5}px;background:${pcols[i%pcols.length]};animation-duration:${6+Math.random()*11}s;animation-delay:${Math.random()*11}s;box-shadow:0 0 7px currentColor`;PC.appendChild(p)}
+
+/* ── PARALLAX ORBS ── */
+document.addEventListener('mousemove',e=>{const xp=(e.clientX/window.innerWidth-.5)*24,yp=(e.clientY/window.innerHeight-.5)*24;document.querySelectorAll('.orb').forEach((o,i)=>{const s=(i+1)*.28;o.style.transform=`translate(${xp*s}px,${yp*s}px)`})});
+
+/* ── AMBIENT SOUND ── */
+let actx=null,sPlaying=false,sNodes=[];
+const sBtn=document.getElementById('snd');
+sBtn.addEventListener('click',()=>{
+  if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();
+  if(!sPlaying){
+    sPlaying=true;sBtn.textContent='♫';sBtn.classList.add('on');
+    const scale=[261.63,293.66,329.63,392,440,523.25,587.33,659.25];
+    function playChime(){if(!sPlaying)return;
+      const o=actx.createOscillator(),g=actx.createGain(),rev=actx.createConvolver();
+      o.type=Math.random()>.5?'sine':'triangle';
+      o.frequency.value=scale[Math.floor(Math.random()*scale.length)]*(Math.random()>.5?1:.5);
+      g.gain.setValueAtTime(0,actx.currentTime);
+      g.gain.linearRampToValueAtTime(.038,actx.currentTime+.9);
+      g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+3.5);
+      o.connect(g);g.connect(actx.destination);
+      o.start(actx.currentTime);o.stop(actx.currentTime+3.6);
+      sNodes.push(o);
+      setTimeout(playChime,1400+Math.random()*2200);}
+    playChime();
+  } else {
+    sPlaying=false;sBtn.textContent='♪';sBtn.classList.remove('on');
+    sNodes.forEach(n=>{try{n.stop()}catch(e){}});sNodes=[];
+  }
+});
+</script>
+</body>
+</html>

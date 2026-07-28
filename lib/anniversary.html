@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Happy Anniversary 💍</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════ RESET & ROOT ═══════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --gold:       #c9952a;
+  --gold-lt:    #e8c76a;
+  --gold-pale:  #f5e6b8;
+  --ivory:      #fdf8ef;
+  --cream:      #f7eddb;
+  --burgundy:   #5c0a2a;
+  --deep:       #1a0a0f;
+  --rose:       #c25375;
+  --blush:      #f0a0b8;
+  --sage:       #7a9e7e;
+  --dusk:       #0d0608;
+  --text-light: rgba(253,248,239,0.88);
+  --text-dim:   rgba(253,248,239,0.52);
+}
+html, body { width:100%; height:100%; overflow:hidden; background:var(--dusk); }
+body { font-family:'Jost', sans-serif; cursor:none; }
+
+/* ═══════════════ CUSTOM CURSOR ═══════════════ */
+#cur  { position:fixed; font-size:20px; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:transform .08s; }
+#cring{ position:fixed; width:38px; height:38px; border-radius:50%; border:1.5px solid rgba(201,149,42,.55); pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:left .12s ease,top .12s ease; }
+
+/* ═══════════════ CANVAS STARFIELD ═══════════════ */
+#starCanvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+/* ═══════════════ AMBIENT ORBS ═══════════════ */
+.orb { position:fixed; border-radius:50%; pointer-events:none; filter:blur(90px); animation:orbPulse ease-in-out infinite; z-index:1; }
+@keyframes orbPulse { 0%,100%{opacity:.7; transform:scale(1);} 50%{opacity:1; transform:scale(1.12);} }
+
+/* ═══════════════ GOLD PARTICLE RAIN ═══════════════ */
+.gpetal { position:fixed; pointer-events:none; z-index:2; font-size:1rem; animation:petalFall linear infinite; opacity:0; }
+@keyframes petalFall {
+  0%   { opacity:0; transform:translateY(-5vh) rotate(0deg) scale(.6); }
+  8%   { opacity:.8; }
+  92%  { opacity:.6; }
+  100% { opacity:0; transform:translateY(108vh) rotate(540deg) scale(1.1); }
+}
+
+/* ═══════════════ PAGES ═══════════════ */
+.page {
+  position:fixed; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; z-index:5;
+  transition: opacity .8s cubic-bezier(.4,0,.2,1), transform .8s cubic-bezier(.4,0,.2,1);
+  transform: translateY(28px) scale(.97);
+}
+.page.active   { opacity:1; pointer-events:all; transform:translateY(0) scale(1); }
+.page.exit-fwd { opacity:0; transform:translateY(-32px) scale(1.02); transition-duration:.5s; }
+.page.exit-bwd { opacity:0; transform:translateY(32px) scale(.97);  transition-duration:.5s; }
+
+/* ═══════════════ GLASS PANEL ═══════════════ */
+.panel {
+  position:relative;
+  background: linear-gradient(145deg, rgba(92,10,42,.55) 0%, rgba(26,10,15,.7) 60%, rgba(92,10,42,.3) 100%);
+  backdrop-filter: blur(28px) saturate(1.4);
+  border: 1px solid rgba(201,149,42,.3);
+  border-radius: 32px;
+  padding: 48px 54px;
+  max-width: 600px; width: 93%;
+  text-align: center;
+  box-shadow:
+    0 0 0 1px rgba(201,149,42,.1),
+    0 40px 100px rgba(0,0,0,.65),
+    inset 0 1px 0 rgba(232,199,106,.18),
+    0 0 80px rgba(201,149,42,.08);
+  overflow: visible;
+}
+.panel::before {
+  content:'';
+  position:absolute; inset:-1.5px; border-radius:33px; z-index:-1;
+  background: linear-gradient(135deg, rgba(201,149,42,.5), rgba(92,10,42,.2), rgba(201,149,42,.35), rgba(92,10,42,.1));
+  filter:blur(1px);
+}
+
+/* ═══════════════ ART NOUVEAU CORNER ORNAMENTS ═══════════════ */
+.corner { position:absolute; font-size:1.6rem; opacity:.45; line-height:1; }
+.corner.tl { top:14px; left:18px; transform:rotate(0deg); }
+.corner.tr { top:14px; right:18px; transform:rotate(90deg); }
+.corner.bl { bottom:14px; left:18px; transform:rotate(-90deg); }
+.corner.br { bottom:14px; right:18px; transform:rotate(180deg); }
+
+/* ═══════════════ DIVIDER ═══════════════ */
+.divider {
+  display:flex; align-items:center; gap:14px;
+  margin: 18px 0;
+  color: rgba(201,149,42,.55);
+  font-size:.7rem; letter-spacing:.35em; text-transform:uppercase;
+}
+.divider::before, .divider::after {
+  content:''; flex:1;
+  height:1px;
+  background:linear-gradient(90deg, transparent, rgba(201,149,42,.5), transparent);
+}
+
+/* ═══════════════ TYPOGRAPHY ═══════════════ */
+.serif-display {
+  font-family:'Cormorant Garamond', serif;
+  font-weight:300;
+  color:var(--gold-pale);
+  line-height:1.15;
+  letter-spacing:.03em;
+}
+.year-badge {
+  display:inline-block;
+  font-family:'Cormorant Garamond', serif;
+  font-size:5.5rem; font-weight:700; font-style:italic;
+  background:linear-gradient(135deg, var(--gold-lt), var(--gold), var(--gold-lt));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  filter: drop-shadow(0 4px 24px rgba(201,149,42,.5));
+  animation: goldShimmer 4s ease-in-out infinite;
+  line-height:1;
+}
+@keyframes goldShimmer {
+  0%,100% { filter:drop-shadow(0 4px 24px rgba(201,149,42,.5)); }
+  50%      { filter:drop-shadow(0 4px 40px rgba(232,199,106,.85)); }
+}
+.subtitle-text {
+  color:var(--text-light);
+  font-size:1.02rem; font-weight:300; line-height:1.85;
+}
+.accent { color:var(--gold-lt); font-style:italic; }
+.em-rose { color:var(--blush); }
+
+/* ═══════════════ BUTTONS ═══════════════ */
+.btn {
+  display:inline-flex; align-items:center; gap:9px;
+  padding:14px 38px;
+  border:none; border-radius:50px;
+  font-family:'Jost',sans-serif; font-weight:600; font-size:.95rem;
+  cursor:pointer; position:relative; overflow:hidden;
+  letter-spacing:.06em; text-transform:uppercase;
+  transition: transform .2s, box-shadow .2s;
+}
+.btn::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,.12); opacity:0; transition:.2s; }
+.btn:hover::after { opacity:1; }
+.btn:hover { transform:translateY(-3px); }
+.btn:active { transform:scale(.97); }
+
+.btn-gold {
+  background:linear-gradient(135deg, #c9952a, #e8c76a, #c9952a);
+  background-size:200%;
+  color:#1a0a0f;
+  box-shadow:0 8px 32px rgba(201,149,42,.4);
+  animation:btnGoldShift 4s linear infinite;
+}
+@keyframes btnGoldShift { 0%{background-position:0%} 100%{background-position:200%} }
+
+.btn-outline {
+  background:transparent;
+  border:1.5px solid rgba(201,149,42,.45);
+  color:var(--gold-lt);
+  box-shadow:0 0 24px rgba(201,149,42,.08);
+}
+.btn-rose {
+  background:linear-gradient(135deg, #c25375, #8b2252);
+  color:#fdf8ef;
+  box-shadow:0 8px 32px rgba(194,83,117,.4);
+}
+
+/* ═══════════════ PROGRESS ═══════════════ */
+#progressWrap {
+  position:fixed; bottom:28px; left:50%; transform:translateX(-50%);
+  display:flex; gap:10px; z-index:20; align-items:center;
+}
+.pdot {
+  width:8px; height:8px; border-radius:50%;
+  background:rgba(201,149,42,.25);
+  transition:all .35s cubic-bezier(.34,1.56,.64,1);
+  cursor:pointer;
+}
+.pdot.on {
+  background:var(--gold);
+  transform:scale(1.65);
+  box-shadow:0 0 12px var(--gold);
+}
+
+/* ═══════════════ SPARKLE TRAIL ═══════════════ */
+.spark {
+  position:fixed; pointer-events:none; z-index:9997; font-size:.95rem;
+  animation:sparkOut .7s ease-out forwards;
+}
+@keyframes sparkOut {
+  0%   { opacity:1; transform:translate(0,0) scale(1); }
+  100% { opacity:0; transform:translate(var(--tx),var(--ty)) scale(0); }
+}
+
+/* ═══════════════ PAGE 1 — ARRIVAL ═══════════════ */
+#p1 { background:radial-gradient(ellipse at 30% 50%, rgba(92,10,42,.35) 0%, transparent 65%),
+               radial-gradient(ellipse at 75% 25%, rgba(201,149,42,.12) 0%, transparent 55%),
+               var(--dusk); }
+
+.ring-anim {
+  font-size:5rem;
+  display:block;
+  animation:ringFloat 3s ease-in-out infinite;
+  filter:drop-shadow(0 8px 28px rgba(201,149,42,.6));
+  margin-bottom:4px;
+}
+@keyframes ringFloat {
+  0%,100%{ transform:translateY(0) rotate(-8deg); }
+  25%    { transform:translateY(-10px) rotate(4deg); }
+  75%    { transform:translateY(-5px) rotate(-4deg); }
+}
+
+/* chibi couple page 1 */
+.chibi-row { display:flex; justify-content:center; align-items:flex-end; gap:8px; margin-bottom:22px; }
+
+.typewrite-wrap { font-family:'Cormorant Garamond', serif; font-style:italic; font-size:1.15rem; color:var(--gold-lt); }
+.tw-cursor { border-right:2px solid var(--gold-lt); animation:twBlink .7s step-end infinite; }
+@keyframes twBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ═══════════════ PAGE 2 — MEMORY REEL ═══════════════ */
+#p2 { background:radial-gradient(ellipse at 60% 30%, rgba(194,83,117,.18) 0%, transparent 60%),
+               radial-gradient(ellipse at 20% 80%, rgba(201,149,42,.1) 0%, transparent 50%),
+               var(--dusk); }
+
+.memory-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:13px; margin:20px 0; text-align:left;
+}
+.mem-card {
+  background:rgba(201,149,42,.07);
+  border:1px solid rgba(201,149,42,.2);
+  border-radius:20px; padding:16px 18px;
+  display:flex; gap:12px; align-items:flex-start;
+  opacity:0; transform:translateY(16px) scale(.97);
+  transition:opacity .45s, transform .45s;
+}
+.mem-card.show { opacity:1; transform:translateY(0) scale(1); }
+.mem-card:hover {
+  background:rgba(201,149,42,.14);
+  border-color:rgba(201,149,42,.45);
+  transform:translateY(-2px) scale(1.02)!important;
+  transition:all .2s!important;
+}
+.mem-ico { font-size:1.6rem; flex-shrink:0; margin-top:2px; }
+.mem-title { font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:600; color:var(--gold-lt); margin-bottom:3px; }
+.mem-text { font-size:.82rem; color:var(--text-dim); line-height:1.55; }
+
+/* ═══════════════ PAGE 3 — VOWS RELOADED ═══════════════ */
+#p3 { background:radial-gradient(ellipse at 50% 20%, rgba(201,149,42,.15) 0%, transparent 55%),
+               radial-gradient(ellipse at 80% 90%, rgba(92,10,42,.3) 0%, transparent 50%),
+               var(--dusk); }
+
+.vow-list { text-align:left; display:flex; flex-direction:column; gap:11px; margin:20px 0; }
+.vow-item {
+  display:flex; align-items:flex-start; gap:14px;
+  background:rgba(92,10,42,.3);
+  border-left:3px solid var(--gold);
+  border-radius:0 16px 16px 0;
+  padding:14px 18px;
+  opacity:0; transform:translateX(-18px);
+  transition:opacity .45s, transform .45s;
+  font-size:.92rem; color:var(--text-light); line-height:1.6;
+}
+.vow-item.show { opacity:1; transform:translateX(0); }
+.vow-item:hover { background:rgba(201,149,42,.12); }
+.vow-check { font-size:1.2rem; margin-top:1px; flex-shrink:0; }
+
+/* ═══════════════ PAGE 4 — CELEBRATION ═══════════════ */
+#p4 { background:radial-gradient(ellipse at 50% 40%, rgba(201,149,42,.22) 0%, rgba(92,10,42,.2) 50%, var(--dusk) 100%); }
+
+.big-script {
+  font-family:'Cormorant Garamond', serif;
+  font-size:3.8rem; font-weight:700; font-style:italic;
+  background:linear-gradient(135deg, #f5e6b8, var(--gold-lt), var(--gold), #e8c76a, #f5e6b8);
+  background-size:300%;
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  filter:drop-shadow(0 4px 24px rgba(201,149,42,.55));
+  animation:bigScriptShimmer 5s linear infinite, titleFloat2 3s ease-in-out infinite;
+  line-height:1.2;
+}
+@keyframes bigScriptShimmer { 0%{background-position:0%} 100%{background-position:300%} }
+@keyframes titleFloat2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+
+.forever-badge {
+  display:inline-block;
+  background:linear-gradient(135deg, rgba(201,149,42,.2), rgba(92,10,42,.3));
+  border:1px solid rgba(201,149,42,.4);
+  border-radius:50px; padding:8px 28px;
+  font-size:.78rem; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--gold-lt); margin-bottom:14px;
+  animation:badgePulse 2.5s ease-in-out infinite;
+}
+@keyframes badgePulse { 0%,100%{box-shadow:0 0 0 rgba(201,149,42,0)} 50%{box-shadow:0 0 22px rgba(201,149,42,.35)} }
+
+/* dancing chibi pair */
+.dance-wrap { display:flex; justify-content:center; gap:6px; margin-bottom:18px; }
+.dancer { animation:danceStep .9s ease-in-out infinite alternate; }
+.dancer:nth-child(2) { animation-delay:.15s; animation-direction:alternate-reverse; }
+@keyframes danceStep {
+  0%  { transform:rotate(-6deg) translateY(0); }
+  100%{ transform:rotate(6deg) translateY(-14px); }
+}
+
+/* firework confetti */
+.fw { position:fixed; inset:0; pointer-events:none; z-index:3; }
+.fwp {
+  position:absolute; border-radius:50%;
+  animation:fwBurst linear forwards;
+  opacity:0;
+}
+@keyframes fwBurst {
+  0%   { opacity:1; transform:translate(0,0) scale(1); }
+  100% { opacity:0; transform:translate(var(--fx),var(--fy)) scale(0); }
+}
+
+/* lantern float */
+.lantern { position:fixed; pointer-events:none; z-index:2; font-size:1.6rem; animation:lanternRise linear forwards; }
+@keyframes lanternRise {
+  0%   { opacity:0; transform:translateY(0) rotate(-8deg); }
+  10%  { opacity:.9; }
+  90%  { opacity:.7; }
+  100% { opacity:0; transform:translateY(-110vh) rotate(12deg); }
+}
+
+/* photo strip decorative */
+.strip-frame {
+  border:2px solid rgba(201,149,42,.35);
+  border-radius:12px;
+  padding:12px 14px;
+  background:rgba(201,149,42,.06);
+  position:relative;
+}
+.strip-frame::after {
+  content:'💍 Est. Our Love';
+  position:absolute; bottom:-11px; left:50%; transform:translateX(-50%);
+  background:var(--dusk); padding:0 10px;
+  font-family:'Cormorant Garamond',serif; font-style:italic;
+  font-size:.78rem; color:var(--gold);
+  white-space:nowrap;
+}
+
+/* glow ring decoration for p1 */
+.glow-ring {
+  position:absolute;
+  border-radius:50%;
+  border:1px solid rgba(201,149,42,.2);
+  animation:ringExpand 4s ease-out infinite;
+  pointer-events:none;
+}
+@keyframes ringExpand {
+  0%   { transform:translate(-50%,-50%) scale(.5); opacity:.6; }
+  100% { transform:translate(-50%,-50%) scale(2.2); opacity:0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Cursor ── -->
+<div id="cur">💍</div>
+<div id="cring"></div>
+
+<!-- ── Canvas starfield ── -->
+<canvas id="starCanvas"></canvas>
+
+<!-- ── Ambient orbs ── -->
+<div class="orb" style="width:500px;height:500px;background:rgba(92,10,42,.22);top:-10%;left:-8%;animation-duration:14s;"></div>
+<div class="orb" style="width:380px;height:380px;background:rgba(201,149,42,.1);bottom:-5%;right:-6%;animation-duration:11s;animation-delay:4s;"></div>
+<div class="orb" style="width:260px;height:260px;background:rgba(194,83,117,.1);top:40%;right:5%;animation-duration:8s;animation-delay:2s;"></div>
+
+<!-- ── Falling petals/gold particles ── -->
+<div id="petalLayer"></div>
+
+<!-- ── Fireworks layer ── -->
+<div class="fw" id="fwLayer"></div>
+
+<!-- ════════════════════════════════════════════════
+     PAGE 1 — ARRIVAL: THE GOLDEN MOMENT
+════════════════════════════════════════════════ -->
+<div class="page active" id="p1">
+
+  <!-- Expanding glow rings behind card -->
+  <div class="glow-ring" style="width:500px;height:500px;top:50%;left:50%;animation-delay:0s;"></div>
+  <div class="glow-ring" style="width:500px;height:500px;top:50%;left:50%;animation-delay:1.3s;"></div>
+  <div class="glow-ring" style="width:500px;height:500px;top:50%;left:50%;animation-delay:2.6s;"></div>
+
+  <div class="panel">
+    <div class="corner tl">❧</div>
+    <div class="corner tr">❧</div>
+    <div class="corner bl">❧</div>
+    <div class="corner br">❧</div>
+
+    <!-- Chibi couple: groom in tux + bride in gown -->
+    <div class="chibi-row">
+
+      <!-- Groom chibi -->
+      <svg width="92" height="118" viewBox="0 0 92 118" xmlns="http://www.w3.org/2000/svg" style="animation:chibFloat 2.4s ease-in-out infinite;">
+        <style>@keyframes chibFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}</style>
+        <!-- tux body -->
+        <ellipse cx="46" cy="97" rx="26" ry="18" fill="#1a0a0f"/>
+        <rect x="30" y="80" width="32" height="22" rx="10" fill="#1a0a0f"/>
+        <!-- white shirt front -->
+        <rect x="39" y="80" width="14" height="22" rx="4" fill="#f5e6b8"/>
+        <!-- bow tie -->
+        <ellipse cx="46" cy="80" rx="7" ry="3.5" fill="#c9952a" transform="rotate(-10,46,80)"/>
+        <ellipse cx="46" cy="80" rx="7" ry="3.5" fill="#c9952a" transform="rotate(10,46,80)"/>
+        <circle cx="46" cy="80" r="3" fill="#e8c76a"/>
+        <!-- head -->
+        <circle cx="46" cy="52" r="31" fill="#f0cba8"/>
+        <!-- blush -->
+        <ellipse cx="31" cy="60" rx="9" ry="6" fill="#f0a0b8" opacity=".45"/>
+        <ellipse cx="61" cy="60" rx="9" ry="6" fill="#f0a0b8" opacity=".45"/>
+        <!-- eyes - happy crescent -->
+        <path d="M31 50 Q36 57 41 50" stroke="#1a0a0f" stroke-width="3" fill="#1a0a0f" stroke-linecap="round"/>
+        <path d="M51 50 Q56 57 61 50" stroke="#1a0a0f" stroke-width="3" fill="#1a0a0f" stroke-linecap="round"/>
+        <!-- warm smile -->
+        <path d="M33 65 Q46 75 59 65" stroke="#8b2252" stroke-width="2.3" fill="none" stroke-linecap="round"/>
+        <!-- hair - neat side part -->
+        <ellipse cx="46" cy="24" rx="31" ry="13" fill="#2d1b0e"/>
+        <ellipse cx="16" cy="39" rx="10" ry="15" fill="#2d1b0e"/>
+        <ellipse cx="76" cy="39" rx="10" ry="15" fill="#2d1b0e"/>
+        <path d="M20 30 Q40 18 62 22" stroke="#4a2e14" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <!-- arm around bride -->
+        <path d="M72 85 Q84 78 80 70" stroke="#f0cba8" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <path d="M20 85 Q10 90 14 100" stroke="#f0cba8" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <!-- pocket square -->
+        <polygon points="52,82 58,82 56,76 54,80" fill="#c9952a"/>
+      </svg>
+
+      <!-- Ring in centre -->
+      <div style="margin-bottom:30px;position:relative;">
+        <span class="ring-anim">💍</span>
+        <div style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(201,149,42,.6);margin-top:-6px;">Our Bond</div>
+      </div>
+
+      <!-- Bride chibi -->
+      <svg width="92" height="118" viewBox="0 0 92 118" xmlns="http://www.w3.org/2000/svg" style="animation:chibFloat 2.4s ease-in-out .4s infinite;">
+        <!-- gown skirt -->
+        <ellipse cx="46" cy="103" rx="32" ry="15" fill="#fdf8ef"/>
+        <rect x="28" y="78" width="36" height="30" rx="14" fill="#fdf8ef"/>
+        <!-- gown bodice details -->
+        <ellipse cx="46" cy="80" rx="14" ry="8" fill="#f5e6b8"/>
+        <path d="M34 82 Q46 72 58 82" fill="none" stroke="#e8c76a" stroke-width="1.5"/>
+        <!-- lace trim -->
+        <path d="M16 103 Q30 96 46 98 Q62 96 76 103" fill="none" stroke="#e8c76a" stroke-width="1.2" stroke-dasharray="3,3"/>
+        <!-- head -->
+        <circle cx="46" cy="50" r="30" fill="#fce8d5"/>
+        <!-- blush -->
+        <ellipse cx="31" cy="59" rx="9" ry="6" fill="#f0a0b8" opacity=".55"/>
+        <ellipse cx="61" cy="59" rx="9" ry="6" fill="#f0a0b8" opacity=".55"/>
+        <!-- sparkle eyes -->
+        <circle cx="36" cy="48" r="7" fill="#1a0a0f"/>
+        <circle cx="56" cy="48" r="7" fill="#1a0a0f"/>
+        <circle cx="33" cy="45" r="3" fill="white"/>
+        <circle cx="53" cy="45" r="3" fill="white"/>
+        <text x="35.5" y="50.5" font-size="5" fill="white">✦</text>
+        <text x="55.5" y="50.5" font-size="5" fill="white">✦</text>
+        <!-- sweet smile -->
+        <path d="M34 63 Q46 73 58 63" stroke="#8b2252" stroke-width="2.3" fill="none" stroke-linecap="round"/>
+        <!-- veil + hair -->
+        <ellipse cx="46" cy="22" rx="30" ry="12" fill="#f7eddb"/>
+        <ellipse cx="16" cy="37" rx="9" ry="14" fill="#f7eddb" opacity=".7"/>
+        <ellipse cx="76" cy="37" rx="9" ry="14" fill="#f7eddb" opacity=".7"/>
+        <!-- hair underneath -->
+        <ellipse cx="46" cy="22" rx="26" ry="10" fill="#6b3a2a"/>
+        <!-- floral crown -->
+        <text x="28" y="18" font-size="13">🌸</text>
+        <text x="44" y="12" font-size="11">🌼</text>
+        <text x="57" y="18" font-size="11">🌸</text>
+        <!-- bouquet -->
+        <text x="60" y="88" font-size="18">💐</text>
+        <!-- arm holding bouquet -->
+        <path d="M62 80 Q70 76 72 68" stroke="#fce8d5" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <!-- other arm touching groom -->
+        <path d="M20 84 Q8 78 12 68" stroke="#fce8d5" stroke-width="8" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+
+    <div class="serif-display" style="font-size:1.1rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">Happy</div>
+    <div class="serif-display" style="font-size:3.5rem;">Wedding Anniversary</div>
+
+    <div class="divider">✦ &nbsp; To the love that never fades &nbsp; ✦</div>
+
+    <p class="subtitle-text" id="twtarget">
+      <span id="twtext"></span><span class="tw-cursor">|</span>
+    </p>
+
+    <div style="margin-top:28px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-gold" onclick="goTo(2)">Relive the memories ✨</button>
+      <button class="btn btn-outline" onclick="goTo(3)">Our vows renewed 💍</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     PAGE 2 — MEMORY REEL
+════════════════════════════════════════════════ -->
+<div class="page" id="p2">
+  <div class="panel">
+    <div class="corner tl">❧</div>
+    <div class="corner tr">❧</div>
+    <div class="corner bl">❧</div>
+    <div class="corner br">❧</div>
+
+    <!-- Memory keeper chibi: sits with photo album -->
+    <div style="display:flex;justify-content:center;margin-bottom:18px;gap:16px;align-items:flex-end;">
+
+      <svg width="88" height="108" viewBox="0 0 88 108" xmlns="http://www.w3.org/2000/svg" style="animation:chibFloat 2.2s ease-in-out infinite;">
+        <ellipse cx="44" cy="88" rx="24" ry="16" fill="#8b2252"/>
+        <rect x="30" y="74" width="28" height="20" rx="10" fill="#8b2252"/>
+        <circle cx="44" cy="48" r="29" fill="#fce8d5"/>
+        <ellipse cx="29" cy="57" rx="8.5" ry="5.5" fill="#f0a0b8" opacity=".5"/>
+        <ellipse cx="59" cy="57" rx="8.5" ry="5.5" fill="#f0a0b8" opacity=".5"/>
+        <!-- nostalgic teary happy eyes -->
+        <circle cx="35" cy="46" r="6.5" fill="#1a0a0f"/>
+        <circle cx="53" cy="46" r="6.5" fill="#1a0a0f"/>
+        <circle cx="32.5" cy="43.5" r="2.5" fill="white"/>
+        <circle cx="50.5" cy="43.5" r="2.5" fill="white"/>
+        <!-- tiny tear shimmer -->
+        <ellipse cx="33" cy="55" rx="2" ry="3.5" fill="#7dd3fc" opacity=".65"/>
+        <!-- warm nostalgic smile -->
+        <path d="M34 61 Q44 70 54 61" stroke="#8b2252" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <!-- hair updo bun -->
+        <ellipse cx="44" cy="21" rx="29" ry="12" fill="#3d1f0a"/>
+        <ellipse cx="16" cy="35" rx="9" ry="14" fill="#3d1f0a"/>
+        <ellipse cx="72" cy="35" rx="9" ry="14" fill="#3d1f0a"/>
+        <circle cx="44" cy="14" r="10" fill="#3d1f0a"/>
+        <circle cx="44" cy="14" r="6" fill="#5c2d10"/>
+        <!-- hair ornament -->
+        <text x="50" y="14" font-size="12">📿</text>
+        <!-- album held -->
+        <rect x="5" y="62" width="32" height="38" rx="4" fill="#c9952a"/>
+        <rect x="7" y="64" width="28" height="34" rx="3" fill="#f7eddb"/>
+        <text x="12" y="78" font-size="9">📸</text>
+        <line x1="9" y1="84" x2="33" y2="84" stroke="#e8c76a" stroke-width="1"/>
+        <line x1="9" y1="89" x2="28" y2="89" stroke="#e8c76a" stroke-width="1"/>
+        <line x1="9" y1="94" x2="25" y2="94" stroke="#e8c76a" stroke-width="1"/>
+        <!-- arm holding album -->
+        <path d="M24 76 Q14 70 12 62" stroke="#fce8d5" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <path d="M64 78 Q76 80 72 92" stroke="#fce8d5" stroke-width="8" stroke-linecap="round" fill="none"/>
+      </svg>
+
+      <div class="strip-frame" style="padding:8px;display:flex;flex-direction:column;gap:5px;">
+        <div style="font-size:1.3rem;">💒 🥂 🌹 🎂 🌙</div>
+        <div style="font-size:.65rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;text-align:center;">Photo Strip</div>
+      </div>
+    </div>
+
+    <div class="serif-display" style="font-size:2.5rem;">Chapters of Us</div>
+    <div class="divider">✦ Every moment, a treasure ✦</div>
+
+    <div class="memory-grid" id="memGrid">
+      <div class="mem-card">
+        <span class="mem-ico">💒</span>
+        <div>
+          <div class="mem-title">The Day We Said Yes</div>
+          <div class="mem-text">White roses, nervous hands, and a vow that changed everything forever.</div>
+        </div>
+      </div>
+      <div class="mem-card">
+        <span class="mem-ico">🌙</span>
+        <div>
+          <div class="mem-title">Our First Night</div>
+          <div class="mem-text">Moonlit streets and soft laughter — we were already home in each other.</div>
+        </div>
+      </div>
+      <div class="mem-card">
+        <span class="mem-ico">🍳</span>
+        <div>
+          <div class="mem-title">Sunday Mornings</div>
+          <div class="mem-text">Burnt toast and perfect coffee — ordinary days made extraordinary.</div>
+        </div>
+      </div>
+      <div class="mem-card">
+        <span class="mem-ico">🌧️</span>
+        <div>
+          <div class="mem-title">Storms We Weathered</div>
+          <div class="mem-text">Every hard season only proved: we are better, stronger, together.</div>
+        </div>
+      </div>
+      <div class="mem-card">
+        <span class="mem-ico">✈️</span>
+        <div>
+          <div class="mem-title">Adventures Shared</div>
+          <div class="mem-text">New cities, wrong trains, and the best kind of getting lost — with you.</div>
+        </div>
+      </div>
+      <div class="mem-card">
+        <span class="mem-ico">🌅</span>
+        <div>
+          <div class="mem-title">Every Single Sunset</div>
+          <div class="mem-text">Still my favourite view is you, lit gold by the fading day.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap;">
+      <button class="btn btn-outline" onclick="goTo(1)">← Back</button>
+      <button class="btn btn-rose" onclick="goTo(3)">Our Renewed Vows 💌</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     PAGE 3 — VOWS RENEWED
+════════════════════════════════════════════════ -->
+<div class="page" id="p3">
+  <div class="panel" style="max-width:560px;">
+    <div class="corner tl">❧</div>
+    <div class="corner tr">❧</div>
+    <div class="corner bl">❧</div>
+    <div class="corner br">❧</div>
+
+    <!-- Chibi: groom kneeling with rose, bride teary-happy -->
+    <div style="display:flex;justify-content:center;gap:14px;margin-bottom:16px;align-items:flex-end;">
+
+      <!-- Kneeling groom -->
+      <svg width="88" height="112" viewBox="0 0 88 112" xmlns="http://www.w3.org/2000/svg" style="animation:propWobble 2s ease-in-out infinite;">
+        <style>@keyframes propWobble{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(3deg)}}</style>
+        <ellipse cx="44" cy="96" rx="22" ry="14" fill="#1a0a0f"/>
+        <rect x="28" y="80" width="32" height="20" rx="10" fill="#1a0a0f"/>
+        <rect x="38" y="80" width="14" height="20" rx="4" fill="#f5e6b8"/>
+        <!-- kneeling legs -->
+        <ellipse cx="33" cy="108" rx="12" ry="7" fill="#0d0608" transform="rotate(-15,33,108)"/>
+        <ellipse cx="56" cy="108" rx="10" ry="6" fill="#0d0608"/>
+        <!-- bow tie gold -->
+        <ellipse cx="44" cy="80" rx="6.5" ry="3" fill="#c9952a" transform="rotate(-10,44,80)"/>
+        <ellipse cx="44" cy="80" rx="6.5" ry="3" fill="#c9952a" transform="rotate(10,44,80)"/>
+        <circle cx="44" cy="80" r="2.8" fill="#e8c76a"/>
+        <circle cx="44" cy="50" r="30" fill="#f0cba8"/>
+        <ellipse cx="30" cy="59" rx="9" ry="6" fill="#f0a0b8" opacity=".4"/>
+        <ellipse cx="58" cy="59" rx="9" ry="6" fill="#f0a0b8" opacity=".4"/>
+        <path d="M30 49 Q35 56 40 49" stroke="#1a0a0f" stroke-width="2.8" fill="#1a0a0f"/>
+        <path d="M48 49 Q53 56 58 49" stroke="#1a0a0f" stroke-width="2.8" fill="#1a0a0f"/>
+        <path d="M32 63 Q44 73 56 63" stroke="#8b2252" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="44" cy="23" rx="30" ry="12" fill="#2d1b0e"/>
+        <ellipse cx="14" cy="38" rx="10" ry="15" fill="#2d1b0e"/>
+        <ellipse cx="74" cy="38" rx="10" ry="15" fill="#2d1b0e"/>
+        <!-- rose offered -->
+        <text x="56" y="76" font-size="22">🌹</text>
+        <path d="M60 74 Q68 68 66 60" stroke="#f0cba8" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <path d="M22 82 Q12 88 14 100" stroke="#f0cba8" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <!-- sparkles -->
+        <text x="70" y="52" font-size="13">✨</text>
+        <text x="2" y="44" font-size="11">💫</text>
+      </svg>
+
+      <!-- Teary-happy bride -->
+      <svg width="88" height="112" viewBox="0 0 88 112" xmlns="http://www.w3.org/2000/svg" style="animation:chibFloat 2s ease-in-out .3s infinite;">
+        <ellipse cx="44" cy="98" rx="28" ry="14" fill="#f7eddb"/>
+        <rect x="28" y="80" width="32" height="24" rx="12" fill="#f7eddb"/>
+        <ellipse cx="44" cy="82" rx="13" ry="8" fill="#f5e6b8"/>
+        <circle cx="44" cy="49" r="30" fill="#fce8d5"/>
+        <ellipse cx="29" cy="58" rx="9" ry="6" fill="#f0a0b8" opacity=".6"/>
+        <ellipse cx="59" cy="58" rx="9" ry="6" fill="#f0a0b8" opacity=".6"/>
+        <!-- sparkly teary eyes -->
+        <circle cx="35" cy="47" r="7" fill="#1a0a0f"/>
+        <circle cx="53" cy="47" r="7" fill="#1a0a0f"/>
+        <circle cx="32" cy="44" r="3" fill="white"/>
+        <circle cx="50" cy="44" r="3" fill="white"/>
+        <text x="34" y="49.5" font-size="5.5" fill="white">✦</text>
+        <text x="52" y="49.5" font-size="5.5" fill="white">✦</text>
+        <!-- tears of joy -->
+        <ellipse cx="31" cy="57" rx="2.2" ry="4" fill="#7dd3fc" opacity=".7"/>
+        <ellipse cx="57" cy="57" rx="2.2" ry="4" fill="#7dd3fc" opacity=".7"/>
+        <!-- joyful open smile -->
+        <path d="M33 63 Q44 75 55 63" stroke="#8b2252" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- hair + veil -->
+        <ellipse cx="44" cy="21" rx="30" ry="12" fill="#f7eddb" opacity=".8"/>
+        <ellipse cx="14" cy="36" rx="9" ry="14" fill="#f7eddb" opacity=".6"/>
+        <ellipse cx="74" cy="36" rx="9" ry="14" fill="#f7eddb" opacity=".6"/>
+        <ellipse cx="44" cy="21" rx="25" ry="10" fill="#6b3a2a"/>
+        <!-- floral crown fancy -->
+        <text x="22" y="18" font-size="13">🌷</text>
+        <text x="40" y="12" font-size="11">🌸</text>
+        <text x="56" y="18" font-size="11">🌺</text>
+        <text x="4" y="44" font-size="13">💐</text>
+        <path d="M18 78 Q8 72 10 62" stroke="#fce8d5" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <path d="M68 80 Q78 82 74 94" stroke="#fce8d5" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <!-- heart overhead -->
+        <text x="30" y="5" font-size="18">💖</text>
+      </svg>
+    </div>
+
+    <div class="serif-display" style="font-size:2.6rem;">We Vow Again</div>
+    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold-lt);font-size:1rem;margin:6px 0 4px;">
+      Because once was never enough.
+    </p>
+    <div class="divider">✦ &nbsp; Sealed with time & love &nbsp; ✦</div>
+
+    <div class="vow-list" id="vowList">
+      <div class="vow-item"><span class="vow-check">💛</span>I still choose you — today, tomorrow, and every day after.</div>
+      <div class="vow-item"><span class="vow-check">🤝</span>I vow to hold your hand through every storm and every sunrise.</div>
+      <div class="vow-item"><span class="vow-check">😂</span>I promise to keep making you laugh until our eyes wrinkle with joy.</div>
+      <div class="vow-item"><span class="vow-check">🛡️</span>I vow to protect your dreams as fiercely as my own — always.</div>
+      <div class="vow-item"><span class="vow-check">✨</span>And I promise to fall in love with you, over and over, forever.</div>
+    </div>
+
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap;">
+      <button class="btn btn-outline" onclick="goTo(2)">← Memories</button>
+      <button class="btn btn-gold" onclick="goTo(4)">Celebrate Us 🥂</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     PAGE 4 — GRAND CELEBRATION
+════════════════════════════════════════════════ -->
+<div class="page" id="p4">
+  <div class="panel" style="max-width:580px;">
+    <div class="corner tl">❧</div>
+    <div class="corner tr">❧</div>
+    <div class="corner bl">❧</div>
+    <div class="corner br">❧</div>
+
+    <!-- Dancing chibi couple -->
+    <div class="dance-wrap">
+
+      <!-- Dancer groom -->
+      <svg class="dancer" width="90" height="115" viewBox="0 0 90 115" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="45" cy="96" rx="24" ry="16" fill="#1a0a0f"/>
+        <rect x="30" y="78" width="30" height="22" rx="10" fill="#1a0a0f"/>
+        <rect x="38" y="78" width="14" height="22" rx="4" fill="#f5e6b8"/>
+        <ellipse cx="45" cy="78" rx="6" ry="3" fill="#c9952a" transform="rotate(-10,45,78)"/>
+        <ellipse cx="45" cy="78" rx="6" ry="3" fill="#c9952a" transform="rotate(10,45,78)"/>
+        <circle cx="45" cy="78" r="2.5" fill="#e8c76a"/>
+        <circle cx="45" cy="49" r="30" fill="#f0cba8"/>
+        <ellipse cx="30" cy="58" rx="9" ry="5.5" fill="#f0a0b8" opacity=".4"/>
+        <ellipse cx="60" cy="58" rx="9" ry="5.5" fill="#f0a0b8" opacity=".4"/>
+        <path d="M30 48 Q35 55 40 48" stroke="#1a0a0f" stroke-width="2.8" fill="#1a0a0f"/>
+        <path d="M50 48 Q55 55 60 48" stroke="#1a0a0f" stroke-width="2.8" fill="#1a0a0f"/>
+        <path d="M32 63 Q45 72 58 63" stroke="#8b2252" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="45" cy="22" rx="30" ry="12" fill="#2d1b0e"/>
+        <ellipse cx="15" cy="37" rx="10" ry="15" fill="#2d1b0e"/>
+        <ellipse cx="75" cy="37" rx="10" ry="15" fill="#2d1b0e"/>
+        <text x="30" y="5" font-size="16">🎉</text>
+        <!-- arms dancing -->
+        <path d="M18 80 Q6 66 10 50" stroke="#f0cba8" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <path d="M72 80 Q84 66 80 52" stroke="#f0cba8" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <text x="0" y="56" font-size="15">✨</text>
+        <text x="78" y="56" font-size="15">🥂</text>
+      </svg>
+
+      <!-- Centre rose -->
+      <div style="margin-bottom:18px;display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div style="font-size:2.2rem;animation:ringFloat 2s ease-in-out infinite;">🌹</div>
+        <div style="font-size:1.4rem;animation:ringFloat 2s ease-in-out .5s infinite;">💍</div>
+        <div style="font-size:1rem;animation:ringFloat 2s ease-in-out 1s infinite;">🥂</div>
+      </div>
+
+      <!-- Dancer bride -->
+      <svg class="dancer" width="90" height="115" viewBox="0 0 90 115" style="animation-delay:.2s;" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="45" cy="100" rx="30" ry="15" fill="#f7eddb"/>
+        <rect x="28" y="78" width="34" height="28" rx="14" fill="#f7eddb"/>
+        <ellipse cx="45" cy="80" rx="14" ry="8" fill="#f5e6b8"/>
+        <circle cx="45" cy="48" r="29" fill="#fce8d5"/>
+        <ellipse cx="30" cy="57" rx="8.5" ry="5.5" fill="#f0a0b8" opacity=".55"/>
+        <ellipse cx="60" cy="57" rx="8.5" ry="5.5" fill="#f0a0b8" opacity=".55"/>
+        <path d="M30 47 Q35 54 40 47" stroke="#1a0a0f" stroke-width="2.8" fill="#1a0a0f"/>
+        <path d="M50 47 Q55 54 60 47" stroke="#1a0a0f" stroke-width="2.8" fill="#1a0a0f"/>
+        <path d="M32 62 Q45 72 58 62" stroke="#8b2252" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="45" cy="21" rx="29" ry="11" fill="#f7eddb" opacity=".8"/>
+        <ellipse cx="16" cy="35" rx="9" ry="14" fill="#f7eddb" opacity=".6"/>
+        <ellipse cx="74" cy="35" rx="9" ry="14" fill="#f7eddb" opacity=".6"/>
+        <ellipse cx="45" cy="21" rx="24" ry="9" fill="#6b3a2a"/>
+        <text x="26" y="17" font-size="12">🌸</text>
+        <text x="42" y="11" font-size="11">🌺</text>
+        <text x="56" y="17" font-size="11">🌸</text>
+        <text x="28" y="4" font-size="17">💖</text>
+        <path d="M18 78 Q5 64 8 48" stroke="#fce8d5" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <path d="M72 78 Q85 64 82 48" stroke="#fce8d5" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <text x="-4" y="54" font-size="14">🌟</text>
+        <text x="78" y="54" font-size="14">🎊</text>
+      </svg>
+    </div>
+
+    <div class="forever-badge">✦ &nbsp; Est. Forever &nbsp; ✦</div>
+    <div class="big-script">Together,<br/>Always.</div>
+    <div class="divider" style="margin:14px 0;">✦ &nbsp; Here's to every chapter yet unwritten &nbsp; ✦</div>
+
+    <div style="background:rgba(201,149,42,.08);border:1px solid rgba(201,149,42,.22);border-radius:20px;padding:18px 24px;margin-bottom:22px;">
+      <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.12rem;color:var(--text-light);line-height:1.85;">
+        "You are the poem I never knew how to write,<br/>
+        the answer before I even knew the question.<br/>
+        <span style="color:var(--gold-lt);">Here's to us — endlessly, beautifully, together.</span>"
+      </p>
+    </div>
+
+    <div style="font-size:2rem;margin-bottom:18px;animation:goldShimmer 2s ease-in-out infinite;">
+      🎊 &nbsp; 💍 &nbsp; 🥂 &nbsp; 🌹 &nbsp; ✨
+    </div>
+
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-gold" onclick="launchCelebration()" style="font-size:1rem;">🎆 Celebrate!</button>
+      <button class="btn btn-outline" onclick="goTo(1)" style="font-size:.88rem;padding:12px 26px;">Start Over 🌹</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Progress dots ─── -->
+<div id="progressWrap">
+  <div class="pdot on" id="d1" onclick="goTo(1)"></div>
+  <div class="pdot" id="d2" onclick="goTo(2)"></div>
+  <div class="pdot" id="d3" onclick="goTo(3)"></div>
+  <div class="pdot" id="d4" onclick="goTo(4)"></div>
+</div>
+
+<!-- ════════════ SCRIPT ════════════ -->
+<script>
+/* ── STARFIELD CANVAS ── */
+(function(){
+  const cv=document.getElementById('starCanvas');
+  const ctx=cv.getContext('2d');
+  let W,H,stars=[];
+  function resize(){ W=cv.width=window.innerWidth; H=cv.height=window.innerHeight; }
+  function mkStar(){ return {x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.8+.3,a:Math.random(),da:(Math.random()*.006+.002)*(Math.random()>.5?1:-1),speed:Math.random()*.15+.04}; }
+  resize();
+  for(let i=0;i<160;i++) stars.push(mkStar());
+  window.addEventListener('resize',resize);
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    stars.forEach(s=>{
+      s.a+=s.da; if(s.a>1||s.a<0) s.da*=-1;
+      s.y+=s.speed; if(s.y>H){ s.y=0; s.x=Math.random()*W; }
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(232,199,106,${s.a*.9})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── CURSOR ── */
+const cur=document.getElementById('cur');
+const cring=document.getElementById('cring');
+let mx=0,my=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cur.style.left=mx+'px'; cur.style.top=my+'px';
+  cring.style.left=mx+'px'; cring.style.top=my+'px';
+  if(Math.random()>.65) spawnSpark(mx,my);
+});
+
+/* ── SPARKLE TRAIL ── */
+const sparkEmoji=['✨','💛','🌹','💍','🥂','⭐','💫','🌸'];
+function spawnSpark(x,y){
+  const s=document.createElement('div');
+  s.className='spark';
+  s.textContent=sparkEmoji[Math.floor(Math.random()*sparkEmoji.length)];
+  const tx=(Math.random()-.5)*70+'px';
+  const ty=(Math.random()*-55-15)+'px';
+  s.style.cssText=`left:${x}px;top:${y}px;--tx:${tx};--ty:${ty};`;
+  document.body.appendChild(s);
+  setTimeout(()=>s.remove(),750);
+}
+
+/* ── GOLD PETALS ── */
+const petalLayer=document.getElementById('petalLayer');
+const petals=['🌸','✨','🌹','💛','🌼','⭐','🥀','💮'];
+function spawnPetal(){
+  const p=document.createElement('div');
+  p.className='gpetal';
+  p.textContent=petals[Math.floor(Math.random()*petals.length)];
+  p.style.cssText=`left:${Math.random()*100}%;font-size:${Math.random()*.7+.7}rem;
+    animation-duration:${Math.random()*9+8}s;animation-delay:${Math.random()*4}s;`;
+  petalLayer.appendChild(p);
+  setTimeout(()=>p.remove(),16000);
+}
+for(let i=0;i<22;i++) setTimeout(()=>spawnPetal(),i*600);
+setInterval(spawnPetal,2500);
+
+/* ── TYPEWRITER PAGE 1 ── */
+const twLines=[
+  'Through every season, you remain my greatest joy...',
+  'Another year woven into the fabric of forever.',
+  'I would choose you — a thousand times over.'
+];
+let twIdx=0,twChar=0,twEl=document.getElementById('twtext');
+function typeNext(){
+  if(!twEl) return;
+  const line=twLines[twIdx];
+  if(twChar<=line.length){ twEl.textContent=line.substring(0,twChar); twChar++; setTimeout(typeNext,55); }
+  else {
+    setTimeout(()=>{
+      let del=line.length;
+      function eraseNext(){
+        if(del>=0){ twEl.textContent=line.substring(0,del); del--; setTimeout(eraseNext,28); }
+        else{ twIdx=(twIdx+1)%twLines.length; twChar=0; setTimeout(typeNext,400); }
+      }
+      eraseNext();
+    },2200);
+  }
+}
+typeNext();
+
+/* ── PAGE NAVIGATION ── */
+let current=1;
+const pages={1:document.getElementById('p1'),2:document.getElementById('p2'),3:document.getElementById('p3'),4:document.getElementById('p4')};
+const dots=[null,...[1,2,3,4].map(i=>document.getElementById('d'+i))];
+
+function goTo(n){
+  if(n===current) return;
+  const dir=n>current?'exit-fwd':'exit-bwd';
+  const prev=pages[current];
+  prev.classList.add(dir);
+  setTimeout(()=>prev.classList.remove('active',dir),600);
+  setTimeout(()=>{
+    current=n;
+    pages[n].classList.add('active');
+    dots.forEach((d,i)=>{ if(d) d.classList.toggle('on',i===n); });
+    if(n===2) animateMem();
+    if(n===3) animateVows();
+    if(n===4){ launchCelebration(); releaseLanterns(); }
+  },620);
+}
+
+/* ── MEMORY CARDS ── */
+function animateMem(){
+  document.querySelectorAll('.mem-card').forEach((c,i)=>{
+    c.classList.remove('show');
+    setTimeout(()=>c.classList.add('show'),150+i*120);
+  });
+}
+
+/* ── VOW ITEMS ── */
+function animateVows(){
+  document.querySelectorAll('.vow-item').forEach((v,i)=>{
+    v.classList.remove('show');
+    setTimeout(()=>v.classList.add('show'),180+i*150);
+  });
+}
+
+/* ── FIREWORKS ── */
+const fwLayer=document.getElementById('fwLayer');
+const fwColors=['#e8c76a','#c9952a','#f0a0b8','#fdf8ef','#c25375','#7a9e7e','#f5e6b8'];
+function burst(cx,cy,count=22){
+  for(let i=0;i<count;i++){
+    const p=document.createElement('div');
+    p.className='fwp';
+    const ang=Math.random()*Math.PI*2, dist=Math.random()*180+60;
+    const sz=Math.random()*8+4;
+    p.style.cssText=`left:${cx}px;top:${cy}px;width:${sz}px;height:${sz}px;
+      background:${fwColors[Math.floor(Math.random()*fwColors.length)]};
+      border-radius:${Math.random()>.5?'50%':'3px'};
+      --fx:${Math.cos(ang)*dist}px;--fy:${Math.sin(ang)*dist}px;
+      animation-duration:${Math.random()*.8+.8}s;
+      animation-delay:${Math.random()*.3}s;`;
+    fwLayer.appendChild(p);
+    setTimeout(()=>p.remove(),2200);
+  }
+}
+
+function launchCelebration(){
+  for(let b=0;b<10;b++){
+    setTimeout(()=>{
+      burst(Math.random()*window.innerWidth, Math.random()*window.innerHeight*.65+50, 26);
+    },b*240);
+  }
+  for(let i=0;i<25;i++) setTimeout(()=>spawnPetal(),i*120);
+}
+
+/* ── FLOATING LANTERNS ── */
+function releaseLanterns(){
+  for(let i=0;i<12;i++){
+    setTimeout(()=>{
+      const l=document.createElement('div');
+      l.className='lantern';
+      l.textContent=['🏮','✨','💛','🌟','🕯️'][Math.floor(Math.random()*5)];
+      l.style.cssText=`left:${Math.random()*100}%;top:110vh;
+        font-size:${Math.random()*1.2+1.2}rem;
+        animation-duration:${Math.random()*5+6}s;`;
+      document.body.appendChild(l);
+      setTimeout(()=>l.remove(),13000);
+    },i*400);
+  }
+}
+</script>
+</body>
+</html>

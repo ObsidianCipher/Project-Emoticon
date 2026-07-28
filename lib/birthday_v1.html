@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday 🎂</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --rose: #ff3e6c;
+    --gold: #f5c842;
+    --cream: #fff8f0;
+    --dark: #1a0a14;
+    --purple: #8b2fc9;
+    --mint: #00e5b0;
+    --bg: radial-gradient(ellipse at 20% 50%, #1a0a14 0%, #0d0510 60%, #020105 100%);
+  }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--dark);
+    color: var(--cream);
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  #cursor {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    background: var(--rose);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, background 0.3s;
+    mix-blend-mode: screen;
+  }
+  #cursor-ring {
+    position: fixed;
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid rgba(255,62,108,0.4);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: all 0.15s ease-out;
+  }
+
+  /* Canvas for particles */
+  #canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+  }
+
+  /* Main scene */
+  #scene {
+    position: relative;
+    z-index: 10;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Cake container */
+  #cake-wrap {
+    position: relative;
+    margin-bottom: 2rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .cake-svg {
+    filter: drop-shadow(0 0 40px rgba(245,200,66,0.3));
+    transition: filter 0.3s;
+  }
+  .cake-svg:hover {
+    filter: drop-shadow(0 0 70px rgba(245,200,66,0.6));
+  }
+
+  /* Text */
+  #hero-text {
+    text-align: center;
+    position: relative;
+  }
+
+  .eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--mint);
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeUp 0.8s ease 0.5s forwards;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+
+  .big-wish {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 700;
+    line-height: 1.05;
+    background: linear-gradient(135deg, #f5c842 0%, #ff3e6c 40%, #c77dff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 1s ease 0.8s forwards;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    color: rgba(255,248,240,0.5);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    margin-top: 1rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 1.2s forwards;
+    transform: translateY(10px);
+  }
+
+  /* Floating name tag */
+  #name-tag {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.5rem 1.5rem;
+    border: 1px solid rgba(245,200,66,0.3);
+    border-radius: 100px;
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    opacity: 0;
+    animation: fadeUp 0.8s ease 1.5s forwards, pulse-border 3s ease 2s infinite;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  #name-tag:hover {
+    background: rgba(245,200,66,0.1);
+  }
+
+  /* Click hint */
+  #hint {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+    z-index: 20;
+    animation: blink 2s ease 3s infinite;
+  }
+
+  /* Message overlay */
+  #message-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10,2,16,0.92);
+    backdrop-filter: blur(12px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  #message-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .message-card {
+    max-width: 480px;
+    width: 90%;
+    padding: 3rem 2.5rem;
+    border: 1px solid rgba(245,200,66,0.2);
+    border-radius: 20px;
+    background: rgba(30,10,25,0.9);
+    text-align: center;
+    transform: scale(0.85) translateY(30px);
+    transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    position: relative;
+    overflow: hidden;
+  }
+  #message-overlay.show .message-card {
+    transform: scale(1) translateY(0);
+  }
+  .message-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .msg-emoji {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .msg-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-style: italic;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+
+  .msg-body {
+    font-size: 0.95rem;
+    color: rgba(255,248,240,0.7);
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  .close-btn {
+    margin-top: 2rem;
+    padding: 0.65rem 2rem;
+    border: 1px solid rgba(255,62,108,0.4);
+    background: transparent;
+    color: var(--rose);
+    border-radius: 100px;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .close-btn:hover {
+    background: rgba(255,62,108,0.1);
+    border-color: var(--rose);
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse-border {
+    0%, 100% { border-color: rgba(245,200,66,0.3); }
+    50% { border-color: rgba(245,200,66,0.8); box-shadow: 0 0 20px rgba(245,200,66,0.15); }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.6; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  @keyframes flicker {
+    0%, 95%, 100% { opacity: 1; transform: scaleY(1) scaleX(1); }
+    96% { opacity: 0.8; transform: scaleY(0.9) scaleX(1.1); }
+    97% { opacity: 1; transform: scaleY(1.1) scaleX(0.9); }
+    98% { opacity: 0.7; }
+  }
+
+  #cake-wrap { animation: float 4s ease-in-out 2s infinite; }
+
+  .flame { animation: flicker 3s ease-in-out infinite; transform-origin: bottom center; }
+  .flame:nth-child(2) { animation-delay: 0.4s; }
+  .flame:nth-child(3) { animation-delay: 0.8s; }
+
+  /* Stars scattered */
+  .star {
+    position: fixed;
+    border-radius: 50%;
+    background: white;
+    pointer-events: none;
+    z-index: 1;
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<canvas id="canvas"></canvas>
+
+<div id="scene">
+  <div id="cake-wrap" onclick="showMessage()" title="Click me!">
+    <svg class="cake-svg" width="220" height="260" viewBox="0 0 220 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Candle flames -->
+      <g class="flame">
+        <ellipse cx="85" cy="52" rx="5" ry="9" fill="#f5c842" opacity="0.9"/>
+        <ellipse cx="85" cy="55" rx="3" ry="5" fill="#ff8c42" opacity="0.8"/>
+        <ellipse cx="85" cy="58" rx="1.5" ry="2.5" fill="#fff"/>
+      </g>
+      <g class="flame">
+        <ellipse cx="110" cy="42" rx="5" ry="9" fill="#f5c842" opacity="0.9"/>
+        <ellipse cx="110" cy="45" rx="3" ry="5" fill="#ff8c42" opacity="0.8"/>
+        <ellipse cx="110" cy="48" rx="1.5" ry="2.5" fill="#fff"/>
+      </g>
+      <g class="flame">
+        <ellipse cx="135" cy="52" rx="5" ry="9" fill="#f5c842" opacity="0.9"/>
+        <ellipse cx="135" cy="55" rx="3" ry="5" fill="#ff8c42" opacity="0.8"/>
+        <ellipse cx="135" cy="58" rx="1.5" ry="2.5" fill="#fff"/>
+      </g>
+
+      <!-- Candles -->
+      <rect x="82" y="62" width="6" height="22" rx="2" fill="#c77dff"/>
+      <rect x="107" y="52" width="6" height="22" rx="2" fill="#ff3e6c"/>
+      <rect x="132" y="62" width="6" height="22" rx="2" fill="#00e5b0"/>
+
+      <!-- Top tier -->
+      <ellipse cx="110" cy="88" rx="52" ry="12" fill="#ff3e6c"/>
+      <rect x="58" y="88" width="104" height="36" rx="0" fill="#ff3e6c"/>
+      <ellipse cx="110" cy="124" rx="52" ry="12" fill="#c75070"/>
+      <!-- Frosting drips top tier -->
+      <path d="M62 94 Q66 106 62 112" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M80 90 Q84 104 80 112" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M100 89 Q104 103 100 112" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M120 89 Q124 103 120 112" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M140 90 Q144 104 140 112" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M158 94 Q162 106 158 112" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- Sprinkles top tier -->
+      <line x1="75" y1="100" x2="82" y2="104" stroke="#f5c842" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="100" y1="96" x2="107" y2="100" stroke="#00e5b0" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="125" y1="98" x2="132" y2="102" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="148" y1="103" x2="155" y2="99" stroke="#c77dff" stroke-width="2.5" stroke-linecap="round"/>
+
+      <!-- Middle tier -->
+      <ellipse cx="110" cy="126" rx="68" ry="14" fill="#8b2fc9"/>
+      <rect x="42" y="126" width="136" height="40" rx="0" fill="#8b2fc9"/>
+      <ellipse cx="110" cy="166" rx="68" ry="14" fill="#6b1fa3"/>
+      <!-- Frosting drips middle -->
+      <path d="M50 133 Q54 148 50 156" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M72 130 Q76 145 72 156" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M95 129 Q99 144 95 156" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M118 129 Q122 144 118 156" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M141 130 Q145 145 141 156" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M163 133 Q167 148 163 156" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- Dots middle tier -->
+      <circle cx="85" cy="144" r="4" fill="#f5c842"/>
+      <circle cx="110" cy="140" r="4" fill="#ff3e6c"/>
+      <circle cx="135" cy="144" r="4" fill="#00e5b0"/>
+      <circle cx="72" cy="150" r="3" fill="#fff"/>
+      <circle cx="148" cy="150" r="3" fill="#fff"/>
+
+      <!-- Bottom tier -->
+      <ellipse cx="110" cy="168" rx="82" ry="16" fill="#f5c842"/>
+      <rect x="28" y="168" width="164" height="52" rx="0" fill="#f5c842"/>
+      <ellipse cx="110" cy="220" rx="82" ry="16" fill="#d4a81a"/>
+      <!-- Frosting drips bottom -->
+      <path d="M36 177 Q40 195 36 207" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M60 172 Q64 190 60 207" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M84 171 Q88 189 84 207" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M108 170 Q112 188 108 207" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M132 171 Q136 189 132 207" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M156 172 Q160 190 156 207" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M178 177 Q182 195 178 207" stroke="#fff8f0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- Hearts bottom tier -->
+      <path d="M74 192 C74 189 70 187 68 190 C66 187 62 189 62 192 C62 196 68 200 68 200 C68 200 74 196 74 192Z" fill="#ff3e6c"/>
+      <path d="M120 190 C120 187 116 185 114 188 C112 185 108 187 108 190 C108 194 114 198 114 198 C114 198 120 194 120 190Z" fill="#c77dff"/>
+      <path d="M160 192 C160 189 156 187 154 190 C152 187 148 189 148 192 C148 196 154 200 154 200 C154 200 160 196 160 192Z" fill="#ff3e6c"/>
+
+      <!-- Plate -->
+      <ellipse cx="110" cy="222" rx="92" ry="18" fill="#2a1a1a" opacity="0.6"/>
+      <ellipse cx="110" cy="220" rx="88" ry="14" fill="#3d2424" opacity="0.5"/>
+    </svg>
+  </div>
+
+  <div id="hero-text">
+    <div class="eyebrow">✦ a wish just for you ✦</div>
+    <div class="big-wish">Happy Birthday,<br>Beautiful.</div>
+    <div class="subtitle">May today overflow with joy, cake, and magic.</div>
+    <div id="name-tag" onclick="showMessage()">✨ Open your surprise →</div>
+  </div>
+</div>
+
+<div id="hint">click the cake · tap anywhere</div>
+
+<!-- Message Overlay -->
+<div id="message-overlay" onclick="hideMessage(event)">
+  <div class="message-card" onclick="event.stopPropagation()">
+    <span class="msg-emoji">🌸</span>
+    <div class="msg-title">"You are the cake in a world full of plain bread."</div>
+    <p class="msg-body">
+      Today is not just a date on the calendar — it's the universe's way of celebrating the fact that you exist.
+      You bring warmth, laughter, and light to everyone around you.<br><br>
+      May every single wish you make tonight come true. 🎂✨
+    </p>
+    <button class="close-btn" onclick="hideMessage(event)">close ✕</button>
+  </div>
+</div>
+
+<script>
+// TypeScript-style interfaces documented via JSDoc
+/**
+ * @typedef {{ x: number, y: number, vx: number, vy: number, size: number, color: string, alpha: number, life: number, maxLife: number, type: string }} Particle
+ */
+
+// --- Cursor ---
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = -100, my = -100, rx = -100, ry = -100;
+
+document.addEventListener('mousemove', (e) => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+
+(function animateCursor() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animateCursor);
+})();
+
+// --- Canvas Particle System ---
+const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('canvas'));
+const ctx = canvas.getContext('2d');
+let W = canvas.width = window.innerWidth;
+let H = canvas.height = window.innerHeight;
+window.addEventListener('resize', () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; });
+
+/** @type {Particle[]} */
+let particles = [];
+
+const COLORS = ['#f5c842','#ff3e6c','#c77dff','#00e5b0','#ff8c42','#fff8f0','#8b2fc9'];
+
+/**
+ * @param {number} x
+ * @param {number} y
+ * @param {string} type
+ * @param {number} count
+ */
+function burst(x, y, type = 'confetti', count = 30) {
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.PI * 2 * i / count) + Math.random() * 0.5;
+    const speed = type === 'confetti' ? 2 + Math.random() * 5 : 1 + Math.random() * 3;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - (type === 'confetti' ? Math.random() * 3 : 0),
+      size: type === 'star' ? 3 + Math.random() * 4 : 4 + Math.random() * 6,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      alpha: 1,
+      life: 0,
+      maxLife: 80 + Math.random() * 60,
+      type
+    });
+  }
+}
+
+// Ambient floating particles
+function spawnAmbient() {
+  if (particles.length < 120) {
+    particles.push({
+      x: Math.random() * W,
+      y: H + 10,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: -(0.3 + Math.random() * 0.8),
+      size: 1 + Math.random() * 3,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      alpha: 0.6,
+      life: 0,
+      maxLife: 200 + Math.random() * 100,
+      type: 'ambient'
+    });
+  }
+}
+
+function drawStar(x, y, r, color, alpha) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  for (let i = 0; i < 5; i++) {
+    const a = (Math.PI * 2 * i / 5) - Math.PI / 2;
+    const a2 = a + Math.PI / 5;
+    ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
+    ctx.lineTo(x + Math.cos(a2) * r * 0.4, y + Math.sin(a2) * r * 0.4);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function tick() {
+  ctx.clearRect(0, 0, W, H);
+  spawnAmbient();
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life++;
+
+    if (p.type !== 'ambient') {
+      p.vy += 0.08; // gravity
+      p.vx *= 0.99;
+    }
+
+    const progress = p.life / p.maxLife;
+    p.alpha = p.type === 'ambient' ? (1 - progress) * 0.5 : 1 - progress;
+
+    if (p.life >= p.maxLife || p.y > H + 20) {
+      particles.splice(i, 1);
+      continue;
+    }
+
+    if (p.type === 'star') {
+      drawStar(p.x, p.y, p.size, p.color, p.alpha);
+    } else {
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+  requestAnimationFrame(tick);
+}
+tick();
+
+// Initial burst on load
+setTimeout(() => {
+  burst(W / 2, H / 2, 'star', 50);
+  burst(W * 0.2, H * 0.3, 'confetti', 20);
+  burst(W * 0.8, H * 0.3, 'confetti', 20);
+}, 1000);
+
+// Click anywhere to burst
+document.addEventListener('click', (e) => {
+  burst(e.clientX, e.clientY, Math.random() > 0.5 ? 'star' : 'confetti', 25);
+});
+
+// Scatter burst on interval
+setInterval(() => {
+  const x = Math.random() * W;
+  const y = Math.random() * H * 0.7;
+  burst(x, y, 'star', 10);
+}, 2500);
+
+// --- Static background stars ---
+for (let i = 0; i < 80; i++) {
+  const el = document.createElement('div');
+  el.className = 'star';
+  const size = Math.random() * 2 + 0.5;
+  el.style.cssText = `
+    width:${size}px; height:${size}px;
+    left:${Math.random()*100}%;
+    top:${Math.random()*100}%;
+    opacity:${0.1 + Math.random()*0.5};
+    animation: blink ${2+Math.random()*4}s ease ${Math.random()*3}s infinite alternate;
+  `;
+  document.body.appendChild(el);
+}
+
+// --- Message Overlay ---
+function showMessage() {
+  document.getElementById('message-overlay').classList.add('show');
+  burst(W / 2, H * 0.4, 'star', 60);
+}
+
+function hideMessage(e) {
+  if (e.target === document.getElementById('message-overlay') || e.target.classList.contains('close-btn')) {
+    document.getElementById('message-overlay').classList.remove('show');
+  }
+}
+</script>
+</body>
+</html>

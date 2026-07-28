@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heart of Embers</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; overflow: hidden; width: 100vw; height: 100vh; }
+  canvas { display: block; position: fixed; top: 0; left: 0; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let W = canvas.width, H = canvas.height;
+let CX = W / 2, CY = H / 2 - 20;
+
+function heartX(t) { return 16 * Math.pow(Math.sin(t), 3); }
+function heartY(t) { return -(13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t)); }
+
+const HEART_SCALE = Math.min(W, H) * 0.028;
+const NUM_PARTICLES = 500;
+
+let phase = 0, phaseTimer = 0, frame = 0;
+let glowPulse = 0, glowDir = 1;
+let heartFallY = 0, shardsSpawned = false;
+let shards = [];
+let rotY = 0, rotX = 0, rotZ = 0;
+const mergeRotSpeed = 0.045;
+
+const PHASE_GLITTER_DUR = 180;
+const PHASE_MERGE_DUR   = 160;
+const PHASE_GLOW_DUR    = 300;
+const PHASE_FALL_DUR    = 180;
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.z = (Math.random() - 0.5) * 600;
+    this.tx = 0; this.ty = 0; this.tz = 0;
+    this.vx = (Math.random()-0.5)*2;
+    this.vy = (Math.random()-0.5)*2;
+    this.size = Math.random()*2.5+0.5;
+    this.alpha = Math.random();
+    this.twinkleSpeed = Math.random()*0.05+0.01;
+    this.twinkleDir = Math.random()>0.5?1:-1;
+    this.hue = Math.random()*30;
+  }
+}
+
+let particles = [];
+for (let i = 0; i < NUM_PARTICLES; i++) particles.push(new Particle());
+
+function assignHeartTargets3D() {
+  for (let i = 0; i < particles.length; i++) {
+    let t = (i / particles.length) * Math.PI * 2;
+    let hx = heartX(t) * HEART_SCALE;
+    let hy = heartY(t) * HEART_SCALE;
+    let surfaceZ = Math.sin(t*1.5)*HEART_SCALE*0.55 + (Math.random()-0.5)*HEART_SCALE*0.25;
+    particles[i].tx = CX + hx;
+    particles[i].ty = CY + hy;
+    particles[i].tz = surfaceZ;
+  }
+}
+
+// 3D rotation + perspective projection
+function project3D(x3, y3, z3, ay, ax, az) {
+  let cosY=Math.cos(ay), sinY=Math.sin(ay);
+  let x1=x3*cosY - z3*sinY, z1=x3*sinY + z3*cosY, y1=y3;
+  let cosX=Math.cos(ax), sinX=Math.sin(ax);
+  let y2=y1*cosX - z1*sinX, z2=y1*sinX + z1*cosX, x2=x1;
+  let cosZ=Math.cos(az), sinZ=Math.sin(az);
+  let xf=x2*cosZ - y2*sinZ, yf=x2*sinZ + y2*cosZ, zf=z2;
+  let fov=900, s=fov/(fov+zf);
+  return { sx:xf*s, sy:yf*s, scale:s, zf };
+}
+
+// ---- DRAW 3D HEART (layered depth slices) ----
+function drawHeart3D(cx, cy, scale, alpha, glowStrength, ay, ax, az) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+
+  const LAYERS = 14;
+
+  // Draw slices back to front
+  for (let l = 0; l <= LAYERS; l++) {
+    let layerZ = ((l / LAYERS) - 0.5) * scale * 1.5;
+    let depthT = l / LAYERS; // 0=back, 1=front
+    let brightness = 0.15 + depthT * 0.85;
+    let r = Math.floor(60 + brightness * 195);
+    let g = Math.floor(brightness * 5);
+    let b = Math.floor(5 + depthT * 15);
+
+    ctx.beginPath();
+    for (let i = 0; i <= 180; i++) {
+      let t = (i/180)*Math.PI*2;
+      let hx = heartX(t)*HEART_SCALE;
+      let hy = heartY(t)*HEART_SCALE;
+      let p = project3D(hx, hy, layerZ, ay, ax, az);
+      let px = cx + p.sx, py = cy + p.sy;
+      i===0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+
+    if (l === LAYERS) {
+      // front face: rich gradient
+      let proj0 = project3D(0, -HEART_SCALE*2, layerZ, ay, ax, az);
+      let grd = ctx.createRadialGradient(
+        cx+proj0.sx, cy+proj0.sy, HEART_SCALE*0.3,
+        cx, cy, HEART_SCALE*5.5
+      );
+      grd.addColorStop(0, 'rgba(255,95,95,1)');
+      grd.addColorStop(0.3, 'rgba(230,10,35,1)');
+      grd.addColorStop(1, 'rgba(90,0,8,1)');
+      ctx.fillStyle = grd;
+    } else if (l === 0) {
+      ctx.fillStyle = `rgba(30,0,4,0.95)`;
+    } else {
+      ctx.fillStyle = `rgba(${r},${g},${b},0.88)`;
+    }
+    ctx.fill();
+  }
+
+  // Clip to front face for specular/gloss
+  ctx.beginPath();
+  for (let i = 0; i <= 200; i++) {
+    let t=(i/200)*Math.PI*2;
+    let hx=heartX(t)*HEART_SCALE, hy=heartY(t)*HEART_SCALE;
+    let p=project3D(hx, hy, scale*0.75, ay, ax, az);
+    let px=cx+p.sx, py=cy+p.sy;
+    i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+  }
+  ctx.closePath();
+  ctx.clip();
+
+  // Specular highlight — light from top-left-front
+  let specProj = project3D(-HEART_SCALE*2.5, -HEART_SCALE*3.5, HEART_SCALE*1.5, ay, ax, az);
+  let slx = cx+specProj.sx, sly = cy+specProj.sy;
+  let gloss = ctx.createRadialGradient(slx, sly, 0, slx, sly, HEART_SCALE*3.5);
+  gloss.addColorStop(0, 'rgba(255,230,230,0.42)');
+  gloss.addColorStop(0.3, 'rgba(255,180,190,0.15)');
+  gloss.addColorStop(1, 'rgba(255,100,110,0)');
+  ctx.fillStyle = gloss;
+  ctx.fillRect(cx-W, cy-H, W*2, H*2);
+
+  ctx.restore();
+
+  // Rim lighting outline
+  ctx.save();
+  ctx.globalAlpha = alpha * (0.35 + glowStrength*0.55);
+  ctx.beginPath();
+  for (let i = 0; i <= 200; i++) {
+    let t=(i/200)*Math.PI*2;
+    let hx=heartX(t)*HEART_SCALE, hy=heartY(t)*HEART_SCALE;
+    let p=project3D(hx, hy, scale*0.75, ay, ax, az);
+    i===0?ctx.moveTo(cx+p.sx,cy+p.sy):ctx.lineTo(cx+p.sx,cy+p.sy);
+  }
+  ctx.strokeStyle = `rgba(255,110,140,${0.7+glowStrength*0.3})`;
+  ctx.lineWidth = 2+glowStrength*5;
+  ctx.shadowColor = '#ff0030';
+  ctx.shadowBlur = 25+glowStrength*50;
+  ctx.stroke();
+  ctx.restore();
+
+  // Screen-wide pulse aura
+  if (glowStrength > 0) {
+    ctx.save();
+    ctx.globalAlpha = alpha*glowStrength*0.2;
+    let bg = ctx.createRadialGradient(cx,cy,0,cx,cy,HEART_SCALE*9);
+    bg.addColorStop(0,'rgba(255,0,40,1)');
+    bg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+    ctx.restore();
+  }
+}
+
+// ---- FLAT 2D HEART ----
+function drawHeart(cx, cy, scale, alpha, glowStrength) {
+  ctx.save();
+  ctx.globalAlpha=alpha*0.18*(1+glowStrength);
+  for(let r=scale*3.5;r>0;r-=scale*0.5){
+    ctx.beginPath();
+    for(let i=0;i<=200;i++){let t=(i/200)*Math.PI*2;ctx.lineTo(cx+heartX(t)*(scale+r*0.08),cy+heartY(t)*(scale+r*0.08));}
+    ctx.fillStyle='rgba(255,0,40,0.04)'; ctx.fill();
+  }
+  ctx.restore();
+  ctx.save();
+  ctx.globalAlpha=alpha;
+  ctx.beginPath();
+  for(let i=0;i<=300;i++){let t=(i/300)*Math.PI*2;i===0?ctx.moveTo(cx+heartX(t)*scale,cy+heartY(t)*scale):ctx.lineTo(cx+heartX(t)*scale,cy+heartY(t)*scale);}
+  ctx.closePath();
+  let grd=ctx.createRadialGradient(cx,cy-scale*2,scale*0.5,cx,cy,scale*6);
+  grd.addColorStop(0,'rgba(255,80,80,1)');grd.addColorStop(0.4,'rgba(220,0,30,1)');grd.addColorStop(1,'rgba(100,0,10,1)');
+  ctx.fillStyle=grd; ctx.fill();
+  ctx.beginPath();
+  for(let i=0;i<=300;i++){let t=(i/300)*Math.PI*2;i===0?ctx.moveTo(cx+heartX(t)*scale,cy+heartY(t)*scale):ctx.lineTo(cx+heartX(t)*scale,cy+heartY(t)*scale);}
+  ctx.clip();
+  let g2=ctx.createLinearGradient(cx-scale*4,cy-scale*6,cx,cy);
+  g2.addColorStop(0,'rgba(255,200,200,0.22)');g2.addColorStop(1,'rgba(255,200,200,0)');
+  ctx.fillStyle=g2; ctx.fillRect(cx-scale*16,cy-scale*16,scale*32,scale*32);
+  ctx.restore();
+  if(glowStrength>0){
+    ctx.save(); ctx.globalAlpha=alpha*glowStrength*0.5;
+    ctx.shadowColor='#ff2244'; ctx.shadowBlur=60*glowStrength;
+    ctx.beginPath();
+    for(let i=0;i<=200;i++){let t=(i/200)*Math.PI*2;i===0?ctx.moveTo(cx+heartX(t)*scale,cy+heartY(t)*scale):ctx.lineTo(cx+heartX(t)*scale,cy+heartY(t)*scale);}
+    ctx.strokeStyle=`rgba(255,120,140,${glowStrength})`; ctx.lineWidth=2+glowStrength*4; ctx.stroke();
+    ctx.restore();
+  }
+}
+
+// ---- SHARDS ----
+class Shard {
+  constructor(x,y){
+    this.x=x; this.y=H+20;
+    this.vy=Math.random()*4+2; this.vx=(Math.random()-0.5)*3;
+    this.rot=Math.random()*Math.PI*2; this.rotV=(Math.random()-0.5)*0.2;
+    this.size=Math.random()*14+6; this.landed=false;
+    this.landY=H-Math.random()*18-4; this.glowAlpha=1;
+  }
+}
+function spawnShards(){
+  shards=[];
+  for(let i=0;i<80;i++){let t=(i/80)*Math.PI*2;shards.push(new Shard(CX+heartX(t)*HEART_SCALE+(Math.random()-0.5)*30,CY+heartY(t)*HEART_SCALE+heartFallY+(Math.random()-0.5)*30));}
+  for(let i=0;i<40;i++){let a=Math.random()*Math.PI*2,r=Math.random()*HEART_SCALE*0.7;shards.push(new Shard(CX+Math.cos(a)*r,CY+heartFallY+Math.sin(a)*r));}
+}
+function drawCrackedGround(){
+  ctx.save();
+  shards.forEach(s=>{
+    if(!s.landed)return;
+    ctx.globalAlpha=s.glowAlpha*0.85; ctx.save();
+    ctx.translate(s.x,s.landY); ctx.rotate(s.rot);
+    ctx.beginPath(); ctx.moveTo(0,-s.size*0.5); ctx.lineTo(s.size*0.4,s.size*0.5); ctx.lineTo(-s.size*0.35,s.size*0.45); ctx.closePath();
+    let sg=ctx.createLinearGradient(0,-s.size,0,s.size);
+    sg.addColorStop(0,'rgba(255,80,100,0.9)'); sg.addColorStop(1,'rgba(180,0,20,0.4)');
+    ctx.fillStyle=sg; ctx.shadowColor='#ff0030'; ctx.shadowBlur=10; ctx.fill(); ctx.restore();
+  });
+  ctx.restore();
+}
+
+// ---- MAIN LOOP ----
+function loop(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+  frame++;
+
+  // ===== PHASE 0: GLITTER =====
+  if(phase===0){
+    phaseTimer++;
+    particles.forEach(p=>{
+      p.alpha+=p.twinkleSpeed*p.twinkleDir;
+      if(p.alpha>1){p.alpha=1;p.twinkleDir=-1;}
+      if(p.alpha<0){p.alpha=0;p.twinkleDir=1;}
+      p.x+=p.vx*0.3; p.y+=p.vy*0.3;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      ctx.save();
+      ctx.globalAlpha=p.alpha*0.9;
+      ctx.shadowColor=`hsl(${p.hue},100%,60%)`; ctx.shadowBlur=8+Math.random()*8;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+      ctx.fillStyle=`hsl(${p.hue},100%,70%)`; ctx.fill();
+      if(p.size>1.5){
+        ctx.beginPath();
+        ctx.moveTo(p.x-p.size*2,p.y);ctx.lineTo(p.x+p.size*2,p.y);
+        ctx.moveTo(p.x,p.y-p.size*2);ctx.lineTo(p.x,p.y+p.size*2);
+        ctx.strokeStyle=`rgba(255,200,200,${p.alpha*0.5})`;ctx.lineWidth=0.5;ctx.stroke();
+      }
+      ctx.restore();
+    });
+    if(phaseTimer>=PHASE_GLITTER_DUR){
+      phase=1; phaseTimer=0;
+      rotY=Math.PI*1.8; rotX=0.35; rotZ=0.15;
+      assignHeartTargets3D();
+    }
+  }
+
+  // ===== PHASE 1: MERGE — 3D SPIN INTO HEART =====
+  else if(phase===1){
+    phaseTimer++;
+    let progress=Math.min(phaseTimer/PHASE_MERGE_DUR,1);
+    let eased=1-Math.pow(1-progress,3);
+    let easeIn=Math.pow(progress,2);
+
+    // Rotation spins fast then settles face-forward
+    rotY -= mergeRotSpeed*(1-eased*0.92);
+    rotX += (0-rotX)*eased*0.05;
+    rotZ += (0-rotZ)*eased*0.05;
+    rotY += (0-rotY)*eased*0.035;
+
+    // Sort particles by projected Z for depth ordering
+    let projected = particles.map(p=>{
+      p.x += (p.tx-p.x)*0.05*(1+eased*1.8);
+      p.y += (p.ty-p.y)*0.05*(1+eased*1.8);
+      p.z  = p.z*0.93 + p.tz*0.07*(1+eased*1.2);
+      let proj=project3D(p.x-CX, p.y-CY, p.z, rotY, rotX, rotZ);
+      return {p, proj};
+    });
+    projected.sort((a,b)=>a.proj.zf-b.proj.zf);
+
+    projected.forEach(({p,proj})=>{
+      let px=CX+proj.sx, py=CY+proj.sy;
+      let ds=proj.scale;
+      let sz=Math.max(0.3, p.size*(0.55+eased*0.85)*ds);
+      let depthBright=0.35+Math.min(1,(proj.zf+500)/700)*0.65;
+      p.alpha=0.65+eased*0.35;
+
+      ctx.save();
+      ctx.globalAlpha=p.alpha*depthBright;
+      ctx.shadowColor=`hsl(${p.hue},100%,55%)`;
+      ctx.shadowBlur=(12+eased*22)*ds;
+      ctx.beginPath(); ctx.arc(px,py,sz,0,Math.PI*2);
+      ctx.fillStyle=`hsl(${p.hue},100%,${48+depthBright*28}%)`;
+      ctx.fill();
+      if(sz>1.0){
+        ctx.beginPath();
+        ctx.moveTo(px-sz*2.2,py);ctx.lineTo(px+sz*2.2,py);
+        ctx.moveTo(px,py-sz*2.2);ctx.lineTo(px,py+sz*2.2);
+        ctx.strokeStyle=`rgba(255,200,200,${p.alpha*0.3*depthBright})`;
+        ctx.lineWidth=0.5;ctx.stroke();
+      }
+      ctx.restore();
+    });
+
+    // 3D heart materialises over particles
+    if(progress>0.4){
+      let ha=(progress-0.4)/0.6;
+      drawHeart3D(CX,CY,HEART_SCALE,ha,0,rotY,rotX,rotZ);
+    }
+
+    if(phaseTimer>=PHASE_MERGE_DUR){ phase=2; phaseTimer=0; glowPulse=0; }
+  }
+
+  // ===== PHASE 2: GLOW =====
+  else if(phase===2){
+    phaseTimer++;
+    glowPulse+=0.04*glowDir;
+    if(glowPulse>1){glowPulse=1;glowDir=-1;}
+    if(glowPulse<0.2){glowPulse=0.2;glowDir=1;}
+    for(let i=0;i<6;i++){
+      let a=Math.random()*Math.PI*2, r=HEART_SCALE*(3+Math.random()*4);
+      let ex=CX+Math.cos(a)*r, ey=CY+Math.sin(a)*r;
+      ctx.save(); ctx.globalAlpha=Math.random()*0.15*glowPulse;
+      ctx.shadowColor='#ff0030'; ctx.shadowBlur=20;
+      ctx.beginPath(); ctx.arc(ex,ey,Math.random()*3,0,Math.PI*2);
+      ctx.fillStyle='#ff4060'; ctx.fill(); ctx.restore();
+    }
+    // Settle rotation to perfectly face-on
+    rotY*=0.96; rotX*=0.96; rotZ*=0.96;
+    drawHeart3D(CX,CY,HEART_SCALE,1,glowPulse,rotY,rotX,rotZ);
+    ctx.save(); ctx.globalAlpha=0.08*glowPulse;
+    let bg=ctx.createRadialGradient(CX,CY,0,CX,CY,HEART_SCALE*8);
+    bg.addColorStop(0,'rgba(255,0,40,1)'); bg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=bg; ctx.fillRect(0,0,W,H); ctx.restore();
+    if(phaseTimer>=PHASE_GLOW_DUR){ phase=3; phaseTimer=0; heartFallY=0; }
+  }
+
+  // ===== PHASE 3: FALL & SHATTER =====
+  else if(phase===3){
+    phaseTimer++;
+    let progress=phaseTimer/PHASE_FALL_DUR;
+    if(!shardsSpawned&&progress>=0.45){ spawnShards(); shardsSpawned=true; }
+    if(progress<0.5){
+      heartFallY+=6+progress*20;
+      let ha=1-progress*0.2;
+      let sx=(Math.random()-0.5)*4*progress, sy=(Math.random()-0.5)*2*progress;
+      if(progress>0.2){
+        ctx.save(); ctx.globalAlpha=(progress-0.2)*2;
+        ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=1;
+        for(let c=0;c<5;c++){
+          ctx.beginPath(); let a=(c/5)*Math.PI*2;
+          ctx.moveTo(CX+sx,CY+heartFallY+sy);
+          ctx.lineTo(CX+Math.cos(a)*HEART_SCALE*1.5+sx,CY+heartFallY+Math.sin(a)*HEART_SCALE*1.2+sy);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+      drawHeart(CX+sx,CY+heartFallY+sy,HEART_SCALE,ha,0);
+    } else {
+      let sf=Math.max(0,1-(progress-0.5)*4);
+      if(sf>0){let exp=(progress-0.5)*200;drawHeart(CX,CY+heartFallY+exp,HEART_SCALE*(1+(progress-0.5)*2),sf*0.3,0);}
+      if(phaseTimer===Math.floor(PHASE_FALL_DUR*0.5)){
+        ctx.save();ctx.globalAlpha=0.6;ctx.fillStyle='rgba(255,50,80,1)';ctx.fillRect(0,0,W,H);ctx.restore();
+      }
+    }
+    if(shardsSpawned){
+      shards.forEach(s=>{
+        if(!s.landed){s.vy+=0.5;s.x+=s.vx;s.y+=s.vy;s.rot+=s.rotV;if(s.y>=s.landY){s.y=s.landY;s.landed=true;s.vy=0;s.vx=0;}}
+        else{s.glowAlpha=Math.max(0.1,s.glowAlpha-0.003);}
+        if(!s.landed){
+          ctx.save();ctx.globalAlpha=0.85;ctx.translate(s.x,s.y);ctx.rotate(s.rot);
+          ctx.beginPath();ctx.moveTo(0,-s.size*0.6);ctx.lineTo(s.size*0.5,s.size*0.5);ctx.lineTo(-s.size*0.4,s.size*0.4);ctx.closePath();
+          let sg=ctx.createLinearGradient(0,-s.size,0,s.size);
+          sg.addColorStop(0,'rgba(255,100,120,0.95)');sg.addColorStop(1,'rgba(160,0,20,0.6)');
+          ctx.fillStyle=sg;ctx.shadowColor='#ff2244';ctx.shadowBlur=14;ctx.fill();
+          ctx.beginPath();ctx.moveTo(-s.size*0.1,-s.size*0.4);ctx.lineTo(s.size*0.2,-s.size*0.1);
+          ctx.strokeStyle='rgba(255,255,255,0.7)';ctx.lineWidth=0.7;ctx.stroke();
+          ctx.restore();
+        }
+      });
+      drawCrackedGround();
+      let gl=ctx.createLinearGradient(0,H-30,0,H);
+      gl.addColorStop(0,'rgba(255,0,30,0.15)');gl.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=gl;ctx.fillRect(0,H-80,W,80);
+    }
+    if(phaseTimer>=PHASE_FALL_DUR+80){
+      phase=0;phaseTimer=0;frame=0;heartFallY=0;shardsSpawned=false;shards=[];
+      particles.forEach(p=>p.reset());
+    }
+  }
+
+  requestAnimationFrame(loop);
+}
+
+loop();
+
+window.addEventListener('resize',()=>{
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  W=canvas.width; H=canvas.height; CX=W/2; CY=H/2-20;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Will You Be My Valentine? 💘</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ─── RESET & BASE ─── */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --rose:#ff2d6f;
+  --blush:#ff7eb3;
+  --cream:#fff5f8;
+  --gold:#ffd166;
+  --lavender:#c77dff;
+  --deep:#1a0010;
+  --midnight:#0d0020;
+  --teal:#06d6a0;
+  --white:#fff;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--midnight);}
+body{
+  font-family:'Quicksand',sans-serif;
+  cursor:none;
+}
+
+/* ─── CUSTOM CURSOR ─── */
+#cursor{
+  position:fixed;width:18px;height:18px;pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  font-size:18px;transition:transform .1s;
+}
+#cursor-ring{
+  position:fixed;width:36px;height:36px;pointer-events:none;z-index:9998;
+  border:2px solid rgba(255,45,111,.5);border-radius:50%;
+  transform:translate(-50%,-50%);
+  transition:all .12s ease;
+}
+
+/* ─── CANVAS / PARTICLES ─── */
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ─── PAGES ─── */
+.page{
+  position:fixed;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;z-index:2;
+  transition:opacity .7s cubic-bezier(.4,0,.2,1),transform .7s cubic-bezier(.4,0,.2,1);
+  transform:scale(.94) translateY(20px);
+}
+.page.active{opacity:1;pointer-events:all;transform:scale(1) translateY(0);}
+.page.exit-up{opacity:0;transform:scale(1.04) translateY(-30px);}
+.page.exit-down{opacity:0;transform:scale(.94) translateY(30px);}
+
+/* ─── GLASS CARD ─── */
+.glass{
+  background:rgba(255,255,255,.07);
+  backdrop-filter:blur(22px);
+  border:1.5px solid rgba(255,126,179,.25);
+  border-radius:36px;
+  padding:44px 52px;
+  max-width:560px;width:93%;
+  text-align:center;
+  position:relative;
+  box-shadow:
+    0 0 60px rgba(255,45,111,.18),
+    0 30px 80px rgba(0,0,0,.4),
+    inset 0 1px 0 rgba(255,255,255,.15);
+}
+.glass::before{
+  content:'';position:absolute;inset:-1px;border-radius:37px;
+  background:linear-gradient(135deg,rgba(255,45,111,.4),rgba(199,125,255,.2),rgba(255,45,111,.1));
+  z-index:-1;filter:blur(1px);
+}
+
+/* ─── TYPOGRAPHY ─── */
+.title-script{
+  font-family:'Dancing Script',cursive;
+  font-size:3.4rem;font-weight:800;
+  background:linear-gradient(135deg,#fff 0%,var(--blush) 50%,var(--gold) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  line-height:1.15;
+  filter:drop-shadow(0 2px 12px rgba(255,126,179,.5));
+  animation:titleFloat 3s ease-in-out infinite;
+}
+@keyframes titleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+.subtitle{
+  font-size:1.05rem;color:rgba(255,255,255,.72);
+  line-height:1.75;margin-top:10px;font-weight:500;
+}
+.emph{color:var(--blush);font-weight:700;}
+
+/* ─── BUTTONS ─── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:15px 40px;border:none;border-radius:50px;
+  font-family:'Quicksand',sans-serif;font-weight:700;font-size:1.05rem;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+  text-decoration:none;
+}
+.btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.18);opacity:0;transition:.2s;}
+.btn:hover::after{opacity:1;}
+.btn:hover{transform:translateY(-3px) scale(1.04);}
+.btn:active{transform:scale(.97);}
+
+.btn-rose{
+  background:linear-gradient(135deg,var(--rose),#c9184a);
+  color:white;
+  box-shadow:0 8px 30px rgba(255,45,111,.45);
+}
+.btn-gold{
+  background:linear-gradient(135deg,var(--gold),#f4a261);
+  color:#3d0014;
+  box-shadow:0 8px 30px rgba(255,209,102,.4);
+}
+.btn-ghost{
+  background:rgba(255,255,255,.1);
+  border:1.5px solid rgba(255,255,255,.25);
+  color:white;
+}
+.btn-lavender{
+  background:linear-gradient(135deg,var(--lavender),#7b2ff7);
+  color:white;
+  box-shadow:0 8px 30px rgba(199,125,255,.4);
+}
+.btn-teal{
+  background:linear-gradient(135deg,var(--teal),#0096c7);
+  color:white;
+  box-shadow:0 8px 30px rgba(6,214,160,.4);
+}
+
+/* ─── PROGRESS ─── */
+#progress{
+  position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
+  display:flex;gap:10px;z-index:20;
+}
+.pdot{
+  width:9px;height:9px;border-radius:50%;
+  background:rgba(255,255,255,.25);
+  transition:all .3s;
+}
+.pdot.on{background:var(--rose);transform:scale(1.5);box-shadow:0 0 10px var(--rose);}
+
+/* ─── FLOATING HEARTS BG ─── */
+.fheart{
+  position:fixed;pointer-events:none;z-index:1;
+  font-size:1.2rem;
+  animation:floatHeart linear infinite;
+  opacity:0;
+}
+@keyframes floatHeart{
+  0%{opacity:0;transform:translateY(0) rotate(0deg) scale(0.5);}
+  10%{opacity:.7;}
+  90%{opacity:.5;}
+  100%{opacity:0;transform:translateY(-110vh) rotate(360deg) scale(1.2);}
+}
+
+/* ─── SPARKLE TRAIL ─── */
+.spark{
+  position:fixed;pointer-events:none;z-index:9997;
+  font-size:1rem;
+  animation:sparkFly .7s ease-out forwards;
+}
+@keyframes sparkFly{
+  0%{opacity:1;transform:translate(0,0) scale(1);}
+  100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);}
+}
+
+/* ─── GLITCH TEXT ─── */
+.glitch{
+  position:relative;
+}
+.glitch::before,.glitch::after{
+  content:attr(data-text);
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,#fff 0%,var(--blush) 50%,var(--gold) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.glitch::before{
+  animation:glitch1 2.5s infinite;clip-path:polygon(0 20%,100% 20%,100% 40%,0 40%);
+}
+.glitch::after{
+  animation:glitch2 2.5s infinite;clip-path:polygon(0 60%,100% 60%,100% 80%,0 80%);
+}
+@keyframes glitch1{
+  0%,100%{transform:translate(0);}
+  20%{transform:translate(-3px,1px);}
+  40%{transform:translate(2px,-1px);}
+  60%{transform:translate(-1px,2px);}
+}
+@keyframes glitch2{
+  0%,100%{transform:translate(0);}
+  20%{transform:translate(3px,-1px);}
+  40%{transform:translate(-2px,2px);}
+  60%{transform:translate(2px,-2px);}
+}
+
+/* ─── PAGE 1: INTRO ─── */
+#p1{background:radial-gradient(ellipse at 30% 40%,rgba(255,45,111,.18) 0%,transparent 60%),
+              radial-gradient(ellipse at 80% 70%,rgba(199,125,255,.13) 0%,transparent 55%),
+              var(--midnight);}
+
+.moon{
+  position:absolute;top:-60px;right:-40px;
+  width:180px;height:180px;
+  background:radial-gradient(circle at 35% 35%,#fff9e6,#ffd166 60%,#f4a261);
+  border-radius:50%;
+  box-shadow:0 0 60px rgba(255,209,102,.5),0 0 120px rgba(255,209,102,.2);
+  animation:moonGlow 4s ease-in-out infinite;
+  overflow:hidden;
+}
+@keyframes moonGlow{0%,100%{box-shadow:0 0 60px rgba(255,209,102,.5),0 0 120px rgba(255,209,102,.2);}50%{box-shadow:0 0 80px rgba(255,209,102,.7),0 0 160px rgba(255,209,102,.3);}}
+.moon-crater{position:absolute;border-radius:50%;background:rgba(0,0,0,.08);}
+
+.chibi-row{display:flex;justify-content:center;align-items:flex-end;gap:16px;margin-bottom:20px;}
+
+/* ─── PAGE 2: REASONS ─── */
+#p2{background:radial-gradient(ellipse at 70% 30%,rgba(255,45,111,.2) 0%,transparent 55%),
+              radial-gradient(ellipse at 20% 80%,rgba(6,214,160,.1) 0%,transparent 50%),
+              var(--midnight);}
+
+.reasons-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:12px;margin:20px 0;text-align:left;
+}
+.reason-card{
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,126,179,.2);
+  border-radius:18px;padding:14px 16px;
+  display:flex;gap:10px;align-items:flex-start;
+  opacity:0;transform:translateY(14px);
+  transition:opacity .4s,transform .4s;
+  font-size:.88rem;color:rgba(255,255,255,.85);line-height:1.5;
+}
+.reason-card.show{opacity:1;transform:translateY(0);}
+.reason-card:hover{
+  background:rgba(255,45,111,.12);
+  border-color:rgba(255,45,111,.4);
+  transform:translateY(-2px) scale(1.02)!important;
+  transition:all .2s!important;
+}
+.r-ico{font-size:1.5rem;flex-shrink:0;margin-top:1px;}
+
+/* ─── PAGE 3: THE ASK ─── */
+#p3{background:radial-gradient(ellipse at 50% 20%,rgba(255,209,102,.15) 0%,transparent 55%),
+              radial-gradient(ellipse at 20% 90%,rgba(255,45,111,.2) 0%,transparent 50%),
+              var(--midnight);}
+
+.heart-3d{
+  font-size:6rem;
+  display:block;
+  animation:heart3d 1.5s ease-in-out infinite;
+  filter:drop-shadow(0 10px 30px rgba(255,45,111,.7));
+  margin-bottom:10px;
+}
+@keyframes heart3d{
+  0%,100%{transform:scale(1) rotate(-5deg);}
+  25%{transform:scale(1.15) rotate(5deg);}
+  50%{transform:scale(1.08) rotate(-3deg);}
+  75%{transform:scale(1.12) rotate(4deg);}
+}
+
+.yes-btn-wrap{position:relative;display:inline-block;}
+.yes-btn-wrap::before{
+  content:'';position:absolute;inset:-8px;border-radius:60px;
+  background:linear-gradient(135deg,var(--rose),var(--lavender),var(--gold));
+  animation:rotateBorder 3s linear infinite;
+  z-index:-1;filter:blur(8px);
+}
+@keyframes rotateBorder{from{filter:blur(8px) hue-rotate(0deg);}to{filter:blur(8px) hue-rotate(360deg);}}
+
+.no-btn{transition:all .3s!important;}
+
+/* ─── PAGE 4: YES! ─── */
+#p4{background:radial-gradient(ellipse at 50% 50%,rgba(255,45,111,.3) 0%,rgba(199,125,255,.15) 50%,var(--midnight) 100%);}
+
+.firework-wrap{position:fixed;inset:0;pointer-events:none;z-index:1;}
+.fw-particle{
+  position:absolute;width:6px;height:6px;border-radius:50%;
+  animation:fwFly linear forwards;
+  opacity:0;
+}
+@keyframes fwFly{
+  0%{opacity:1;transform:translate(0,0) scale(1);}
+  100%{opacity:0;transform:translate(var(--fx),var(--fy)) scale(0);}
+}
+
+.celebration-chibi{animation:chibDance .6s ease-in-out infinite alternate;}
+@keyframes chibDance{
+  0%{transform:rotate(-8deg) translateY(0);}
+  100%{transform:rotate(8deg) translateY(-12px);}
+}
+
+.ribbon-text{
+  font-family:'Dancing Script',cursive;
+  font-size:4.5rem;font-weight:800;
+  background:linear-gradient(135deg,var(--gold),var(--rose),var(--lavender));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:ribbonPulse 1s ease-in-out infinite;
+  filter:drop-shadow(0 4px 20px rgba(255,45,111,.6));
+}
+@keyframes ribbonPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+
+/* ─── TYPEWRITER ─── */
+.typewriter{
+  overflow:hidden;white-space:nowrap;
+  border-right:3px solid var(--blush);
+  animation:typing 2.5s steps(30) forwards, blink .7s step-end infinite;
+  width:0;
+}
+@keyframes typing{to{width:100%;}}
+@keyframes blink{0%,100%{border-color:var(--blush);}50%{border-color:transparent;}}
+
+/* ─── STAR FIELD ─── */
+.star-bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.stardot{position:absolute;border-radius:50%;background:white;animation:starTwinkle ease-in-out infinite;}
+@keyframes starTwinkle{0%,100%{opacity:.15;transform:scale(1);}50%{opacity:.9;transform:scale(1.6);}}
+
+/* ─── GLOW ORBS ─── */
+.orb{
+  position:fixed;border-radius:50%;pointer-events:none;
+  animation:orbDrift ease-in-out infinite;
+  filter:blur(60px);z-index:1;
+}
+@keyframes orbDrift{
+  0%,100%{transform:translate(0,0);}
+  33%{transform:translate(30px,-20px);}
+  66%{transform:translate(-20px,15px);}
+}
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div id="cursor">💗</div>
+<div id="cursor-ring"></div>
+
+<!-- Star field -->
+<div class="star-bg" id="starBg"></div>
+
+<!-- Glow orbs -->
+<div class="orb" style="width:400px;height:400px;background:rgba(255,45,111,.12);top:-10%;left:-10%;animation-duration:12s;"></div>
+<div class="orb" style="width:300px;height:300px;background:rgba(199,125,255,.1);bottom:-5%;right:-5%;animation-duration:9s;animation-delay:3s;"></div>
+
+<!-- Floating hearts -->
+<div id="floatingHearts"></div>
+
+<!-- Confetti / Fireworks -->
+<div class="firework-wrap" id="fwWrap"></div>
+
+<!-- ══════════════════════════════════════════
+     PAGE 1 — STARLIT INTRO
+══════════════════════════════════════════ -->
+<div class="page active" id="p1">
+  <div class="glass" style="max-width:580px;position:relative;overflow:visible;">
+
+    <!-- Moon decoration -->
+    <div class="moon" style="position:absolute;">
+      <div class="moon-crater" style="width:25px;height:25px;top:30px;left:40px;"></div>
+      <div class="moon-crater" style="width:15px;height:15px;top:60px;left:100px;"></div>
+      <div class="moon-crater" style="width:10px;height:10px;top:100px;left:60px;"></div>
+    </div>
+
+    <!-- Chibi pair: shy + cheerful -->
+    <div class="chibi-row">
+      <!-- Shy chibi (looking away, blushing) -->
+      <svg width="95" height="115" viewBox="0 0 95 115" xmlns="http://www.w3.org/2000/svg" style="animation:chibFloat 2.2s ease-in-out infinite;">
+        <style>@keyframes chibFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}</style>
+        <!-- dress/body -->
+        <ellipse cx="47" cy="92" rx="28" ry="20" fill="#c77dff" opacity=".9"/>
+        <rect x="32" y="76" width="30" height="20" rx="10" fill="#c77dff"/>
+        <!-- head -->
+        <circle cx="47" cy="52" r="33" fill="#ffe8d6"/>
+        <!-- blush HEAVY -->
+        <ellipse cx="30" cy="61" rx="11" ry="7" fill="#ff7eb3" opacity=".55"/>
+        <ellipse cx="64" cy="61" rx="11" ry="7" fill="#ff7eb3" opacity=".55"/>
+        <!-- eyes looking to side (shy) -->
+        <circle cx="38" cy="50" r="6" fill="#3d0014"/>
+        <circle cx="56" cy="50" r="6" fill="#3d0014"/>
+        <circle cx="35" cy="48" r="2.5" fill="white"/>
+        <circle cx="53" cy="48" r="2.5" fill="white"/>
+        <!-- shy dot pupils shifted right -->
+        <circle cx="40" cy="51" r="3" fill="#1a0010"/>
+        <circle cx="58" cy="51" r="3" fill="#1a0010"/>
+        <!-- small smile + dimples -->
+        <path d="M39 64 Q47 70 55 64" stroke="#c9184a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <circle cx="36" cy="65" r="1.8" fill="#ff9eb5" opacity=".7"/>
+        <circle cx="58" cy="65" r="1.8" fill="#ff9eb5" opacity=".7"/>
+        <!-- hair - dark wavy -->
+        <ellipse cx="47" cy="23" rx="33" ry="15" fill="#2d1b3d"/>
+        <ellipse cx="17" cy="42" rx="11" ry="17" fill="#2d1b3d"/>
+        <ellipse cx="77" cy="42" rx="11" ry="17" fill="#2d1b3d"/>
+        <!-- hair shine -->
+        <ellipse cx="38" cy="25" rx="8" ry="4" fill="rgba(255,255,255,.18)" transform="rotate(-20,38,25)"/>
+        <!-- rose hairpin -->
+        <circle cx="72" cy="28" r="7" fill="#ff2d6f"/>
+        <text x="68" y="33" font-size="9" fill="white">🌹</text>
+        <!-- arms crossed shy -->
+        <path d="M22 82 Q14 88 18 98" stroke="#ffe8d6" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <path d="M72 82 Q80 86 77 96" stroke="#ffe8d6" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <!-- heart float from head -->
+        <text x="55" y="14" font-size="14" opacity=".8" style="animation:heartPop 1.8s ease-in-out infinite;">💗</text>
+      </svg>
+
+      <!-- Cheerful chibi with letter -->
+      <svg width="100" height="115" viewBox="0 0 100 115" xmlns="http://www.w3.org/2000/svg" style="animation:chibFloat 2.2s ease-in-out .4s infinite;">
+        <ellipse cx="50" cy="92" rx="27" ry="19" fill="#ff2d6f" opacity=".9"/>
+        <rect x="35" y="76" width="30" height="20" rx="10" fill="#ff2d6f"/>
+        <circle cx="50" cy="51" r="32" fill="#ffe8d6"/>
+        <ellipse cx="33" cy="60" rx="10" ry="6.5" fill="#ff7eb3" opacity=".5"/>
+        <ellipse cx="67" cy="60" rx="10" ry="6.5" fill="#ff7eb3" opacity=".5"/>
+        <!-- happy ^ eyes -->
+        <path d="M31 49 Q36 55 41 49" stroke="#2d1b3d" stroke-width="3" fill="#2d1b3d" stroke-linecap="round"/>
+        <path d="M59 49 Q64 55 69 49" stroke="#2d1b3d" stroke-width="3" fill="#2d1b3d" stroke-linecap="round"/>
+        <!-- big smile -->
+        <path d="M36 65 Q50 76 64 65" stroke="#c9184a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- teeth hint -->
+        <line x1="43" y1="69" x2="43" y2="72" stroke="#c9184a" stroke-width="1.2"/>
+        <line x1="50" y1="72" x2="50" y2="75" stroke="#c9184a" stroke-width="1.2"/>
+        <line x1="57" y1="69" x2="57" y2="72" stroke="#c9184a" stroke-width="1.2"/>
+        <!-- hair golden twin tails -->
+        <ellipse cx="50" cy="22" rx="32" ry="14" fill="#ffd166"/>
+        <ellipse cx="18" cy="40" rx="12" ry="19" fill="#ffd166"/>
+        <ellipse cx="82" cy="40" rx="12" ry="19" fill="#ffd166"/>
+        <!-- twin-tail ties -->
+        <circle cx="18" cy="20" r="6" fill="#ff2d6f"/><circle cx="82" cy="20" r="6" fill="#ff2d6f"/>
+        <ellipse cx="11" cy="20" rx="9" ry="5" fill="#ff2d6f" transform="rotate(-20,11,20)"/>
+        <ellipse cx="25" cy="20" rx="9" ry="5" fill="#ff2d6f" transform="rotate(20,25,20)"/>
+        <ellipse cx="75" cy="20" rx="9" ry="5" fill="#ff2d6f" transform="rotate(-20,75,20)"/>
+        <ellipse cx="89" cy="20" rx="9" ry="5" fill="#ff2d6f" transform="rotate(20,89,20)"/>
+        <!-- letter held out -->
+        <rect x="60" y="70" width="34" height="26" rx="5" fill="white" stroke="#ff7eb3" stroke-width="1.5"/>
+        <path d="M60 70 L77 84 L94 70" stroke="#ff7eb3" stroke-width="1.5" fill="none"/>
+        <text x="73" y="90" font-size="8" fill="#ff2d6f" font-family="Quicksand" font-weight="700">💌 U+Me</text>
+        <!-- arm holding letter -->
+        <path d="M72 80 Q78 74 80 68" stroke="#ffe8d6" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <path d="M28 82 Q18 86 20 96" stroke="#ffe8d6" stroke-width="8" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+
+    <div class="title-script glitch" data-text="Will You Be">Will You Be</div>
+    <div class="title-script glitch" data-text="My Valentine?" style="color:var(--blush)">My Valentine?</div>
+    <p class="subtitle" style="margin-top:16px;">
+      Somewhere between the <span class="emph">stars and heartbeats</span>, I found my courage.<br/>
+      Let me show you why you mean <span class="emph">everything</span> to me. 💫
+    </p>
+
+    <div style="margin-top:30px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-rose" onclick="goTo(2)">Show me why 💕</button>
+      <button class="btn btn-ghost" onclick="goTo(3)">Skip to the ask ✨</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE 2 — REASONS I LOVE YOU
+══════════════════════════════════════════ -->
+<div class="page" id="p2">
+  <div class="glass">
+    <!-- Chibi: reading love list -->
+    <div style="display:flex;justify-content:center;margin-bottom:16px;">
+      <svg width="90" height="105" viewBox="0 0 90 105" xmlns="http://www.w3.org/2000/svg" style="animation:chibFloat 2s ease-in-out infinite;">
+        <ellipse cx="45" cy="86" rx="25" ry="17" fill="#06d6a0"/>
+        <rect x="31" y="72" width="28" height="18" rx="9" fill="#06d6a0"/>
+        <circle cx="45" cy="50" r="30" fill="#ffe8d6"/>
+        <ellipse cx="30" cy="58" rx="9" ry="5.5" fill="#ff7eb3" opacity=".5"/>
+        <ellipse cx="60" cy="58" rx="9" ry="5.5" fill="#ff7eb3" opacity=".5"/>
+        <!-- reading glasses -->
+        <circle cx="35" cy="48" r="9" fill="none" stroke="#ffd166" stroke-width="2.2"/>
+        <circle cx="55" cy="48" r="9" fill="none" stroke="#ffd166" stroke-width="2.2"/>
+        <line x1="44" y1="48" x2="46" y2="48" stroke="#ffd166" stroke-width="2"/>
+        <line x1="20" y1="46" x2="26" y2="47" stroke="#ffd166" stroke-width="2"/>
+        <line x1="64" y1="47" x2="70" y2="46" stroke="#ffd166" stroke-width="2"/>
+        <circle cx="35" cy="49" r="4" fill="#2d1b3d"/>
+        <circle cx="55" cy="49" r="4" fill="#2d1b3d"/>
+        <circle cx="36.5" cy="47.5" r="1.5" fill="white"/>
+        <circle cx="56.5" cy="47.5" r="1.5" fill="white"/>
+        <path d="M37 62 Q45 67 53 62" stroke="#c9184a" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="45" cy="22" rx="30" ry="12" fill="#2d1b3d"/>
+        <ellipse cx="17" cy="36" rx="9" ry="14" fill="#2d1b3d"/>
+        <ellipse cx="73" cy="36" rx="9" ry="14" fill="#2d1b3d"/>
+        <!-- scroll/paper held -->
+        <rect x="10" y="68" width="22" height="28" rx="3" fill="#fff9e6" stroke="#ffd166" stroke-width="1.5"/>
+        <line x1="13" y1="74" x2="29" y2="74" stroke="#ffb3c6" stroke-width="1.2"/>
+        <line x1="13" y1="79" x2="29" y2="79" stroke="#ffb3c6" stroke-width="1.2"/>
+        <line x1="13" y1="84" x2="24" y2="84" stroke="#ffb3c6" stroke-width="1.2"/>
+        <!-- arm holding scroll -->
+        <path d="M25 78 Q16 72 14 66" stroke="#ffe8d6" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <path d="M65 78 Q74 82 72 92" stroke="#ffe8d6" stroke-width="8" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+
+    <div class="title-script" style="font-size:2.4rem;">Reasons I Choose You</div>
+    <p class="subtitle" style="margin-bottom:8px;">Every heartbeat has a reason. Here are <span class="emph">mine</span>.</p>
+
+    <div class="reasons-grid" id="reasonsGrid">
+      <div class="reason-card"><span class="r-ico">😂</span><div>You make me laugh so hard my cheeks hurt — and I never want to stop.</div></div>
+      <div class="reason-card"><span class="r-ico">🌙</span><div>Late nights feel magical whenever you're part of them.</div></div>
+      <div class="reason-card"><span class="r-ico">🫂</span><div>Your hugs are the safest place in this whole chaotic world.</div></div>
+      <div class="reason-card"><span class="r-ico">✨</span><div>You see beauty in things everyone else walks past. That's rare.</div></div>
+      <div class="reason-card"><span class="r-ico">🎵</span><div>Even the songs feel different — better — because they remind me of you.</div></div>
+      <div class="reason-card"><span class="r-ico">💪</span><div>You're stronger than you know, and I'm in awe of you every single day.</div></div>
+    </div>
+
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap;">
+      <button class="btn btn-ghost" onclick="goTo(1)">← Back</button>
+      <button class="btn btn-rose" onclick="goTo(3)">The Question 💘</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE 3 — THE VALENTINE ASK
+══════════════════════════════════════════ -->
+<div class="page" id="p3">
+  <div class="glass" style="max-width:500px;">
+
+    <!-- Dramatic chibi with ring box -->
+    <div style="display:flex;justify-content:center;gap:20px;margin-bottom:18px;align-items:flex-end;">
+      <!-- Kneeling chibi proposing -->
+      <svg width="100" height="120" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" style="animation:proposeWiggle 1.5s ease-in-out infinite;">
+        <style>@keyframes proposeWiggle{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}</style>
+        <!-- body kneeling -->
+        <ellipse cx="50" cy="98" rx="22" ry="14" fill="#c77dff"/>
+        <rect x="33" y="84" width="34" height="20" rx="10" fill="#c77dff"/>
+        <!-- legs kneeling -->
+        <ellipse cx="36" cy="112" rx="12" ry="8" fill="#a855f7" transform="rotate(-20,36,112)"/>
+        <ellipse cx="64" cy="112" rx="10" ry="6" fill="#a855f7"/>
+        <circle cx="45" cy="52" r="31" fill="#ffe8d6"/>
+        <ellipse cx="30" cy="61" rx="10" ry="6" fill="#ff7eb3" opacity=".5"/>
+        <ellipse cx="60" cy="61" rx="10" ry="6" fill="#ff7eb3" opacity=".5"/>
+        <!-- sparkly eyes -->
+        <circle cx="36" cy="50" r="7" fill="#2d1b3d"/>
+        <circle cx="54" cy="50" r="7" fill="#2d1b3d"/>
+        <circle cx="33" cy="47" r="3" fill="white"/>
+        <circle cx="51" cy="47" r="3" fill="white"/>
+        <text x="35" y="53" font-size="5" fill="white">✦</text>
+        <text x="53" y="53" font-size="5" fill="white">✦</text>
+        <!-- hopeful smile -->
+        <path d="M35 65 Q45 74 55 65" stroke="#c9184a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- hair swooshy -->
+        <ellipse cx="45" cy="23" rx="31" ry="13" fill="#1a0010"/>
+        <ellipse cx="15" cy="38" rx="10" ry="15" fill="#1a0010"/>
+        <ellipse cx="75" cy="38" rx="10" ry="15" fill="#1a0010"/>
+        <path d="M25 28 Q40 18 60 22 Q72 26 78 36" stroke="#c9184a" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- ring box held up -->
+        <rect x="58" y="56" width="28" height="22" rx="4" fill="#c9184a"/>
+        <rect x="58" y="56" width="28" height="10" rx="4" fill="#ff2d6f" id="boxLid"/>
+        <circle cx="72" cy="61" r="6" fill="#fff" opacity=".9"/>
+        <circle cx="72" cy="61" r="3.5" fill="#ffd166"/>
+        <circle cx="72" cy="61" r="1.5" fill="#ff2d6f"/>
+        <!-- arm raising box -->
+        <path d="M62 78 Q60 68 60 58" stroke="#ffe8d6" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <path d="M28 84 Q18 88 20 100" stroke="#ffe8d6" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <!-- sparkles around box -->
+        <text x="86" y="56" font-size="12">✨</text>
+        <text x="88" y="70" font-size="10">💎</text>
+      </svg>
+    </div>
+
+    <span class="heart-3d">💘</span>
+    <div class="title-script" style="font-size:2.8rem;">Be Mine?</div>
+    <p class="subtitle" style="margin-top:12px;margin-bottom:24px;">
+      I searched the universe and found no star<br/>
+      brighter than <span class="emph">you</span>. Will you be my<br/>
+      <span class="emph" style="color:var(--gold);font-size:1.2rem;">Valentine? 💝</span>
+    </p>
+
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;align-items:center;">
+      <div class="yes-btn-wrap">
+        <button class="btn btn-rose" id="yesBtn" onclick="goTo(4)" style="font-size:1.2rem;padding:18px 52px;">
+          Yes! 💖 Forever!
+        </button>
+      </div>
+      <button class="btn btn-ghost" id="noBtn" onmouseover="runAwayNo()" onclick="runAwayNo()">
+        Maybe later 😅
+      </button>
+    </div>
+    <p style="color:rgba(255,255,255,.3);font-size:.78rem;margin-top:18px;font-style:italic;">
+      (The no button has trust issues 🙈)
+    </p>
+    <div style="margin-top:14px;">
+      <button class="btn btn-ghost" style="font-size:.85rem;padding:10px 22px;" onclick="goTo(2)">← Read reasons again</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE 4 — THEY SAID YES! 🎉
+══════════════════════════════════════════ -->
+<div class="page" id="p4">
+  <div class="glass" style="max-width:560px;">
+
+    <div style="display:flex;justify-content:center;gap:-10px;margin-bottom:20px;">
+      <!-- Celebration chibi 1 -->
+      <svg class="celebration-chibi" width="90" height="110" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg" style="animation-delay:.1s;">
+        <ellipse cx="45" cy="88" rx="25" ry="17" fill="#ff2d6f"/>
+        <rect x="31" y="74" width="28" height="18" rx="9" fill="#ff2d6f"/>
+        <circle cx="45" cy="50" r="30" fill="#ffe8d6"/>
+        <ellipse cx="30" cy="58" rx="9" ry="6" fill="#ff7eb3" opacity=".55"/>
+        <ellipse cx="60" cy="58" rx="9" ry="6" fill="#ff7eb3" opacity=".55"/>
+        <path d="M31 48 Q36 56 41 48" stroke="#2d1b3d" stroke-width="3" fill="#2d1b3d"/>
+        <path d="M49 48 Q54 56 59 48" stroke="#2d1b3d" stroke-width="3" fill="#2d1b3d"/>
+        <path d="M32 64 Q45 75 58 64" stroke="#c9184a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <ellipse cx="45" cy="22" rx="30" ry="12" fill="#ffd166"/>
+        <ellipse cx="16" cy="37" rx="10" ry="15" fill="#ffd166"/>
+        <ellipse cx="74" cy="37" rx="10" ry="15" fill="#ffd166"/>
+        <circle cx="16" cy="20" r="5" fill="#ff2d6f"/>
+        <circle cx="74" cy="20" r="5" fill="#ff2d6f"/>
+        <!-- arms up celebrating -->
+        <path d="M20 76 Q6 62 10 46" stroke="#ffe8d6" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <path d="M70 76 Q84 62 80 46" stroke="#ffe8d6" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <text x="-2" y="50" font-size="18">🎊</text>
+        <text x="72" y="50" font-size="18">🎉</text>
+        <text x="35" y="10" font-size="16">💖</text>
+      </svg>
+
+      <!-- Celebration chibi 2 -->
+      <svg class="celebration-chibi" width="90" height="110" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg" style="animation-delay:.3s;">
+        <ellipse cx="45" cy="88" rx="25" ry="17" fill="#c77dff"/>
+        <rect x="31" y="74" width="28" height="18" rx="9" fill="#c77dff"/>
+        <circle cx="45" cy="50" r="30" fill="#ffe8d6"/>
+        <ellipse cx="30" cy="58" rx="9" ry="6" fill="#ff7eb3" opacity=".55"/>
+        <ellipse cx="60" cy="58" rx="9" ry="6" fill="#ff7eb3" opacity=".55"/>
+        <path d="M31 48 Q36 56 41 48" stroke="#2d1b3d" stroke-width="3" fill="#2d1b3d"/>
+        <path d="M49 48 Q54 56 59 48" stroke="#2d1b3d" stroke-width="3" fill="#2d1b3d"/>
+        <path d="M31 64 Q45 76 59 64" stroke="#c9184a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <ellipse cx="45" cy="22" rx="30" ry="12" fill="#2d1b3d"/>
+        <ellipse cx="16" cy="37" rx="10" ry="15" fill="#2d1b3d"/>
+        <ellipse cx="74" cy="37" rx="10" ry="15" fill="#2d1b3d"/>
+        <path d="M22 26 Q38 15 58 18 Q74 22 80 34" stroke="#c77dff" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- heart burst from body -->
+        <text x="32" y="5" font-size="20">💝</text>
+        <!-- arms up -->
+        <path d="M20 76 Q10 65 14 50" stroke="#ffe8d6" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <path d="M70 76 Q80 65 76 50" stroke="#ffe8d6" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <text x="-4" y="54" font-size="16">✨</text>
+        <text x="74" y="54" font-size="16">🌸</text>
+      </svg>
+
+      <!-- Chibi 3 – excited with banner -->
+      <svg class="celebration-chibi" width="90" height="120" viewBox="0 0 90 120" xmlns="http://www.w3.org/2000/svg" style="animation-delay:.5s;">
+        <ellipse cx="45" cy="96" rx="24" ry="16" fill="#06d6a0"/>
+        <rect x="32" y="82" width="26" height="16" rx="8" fill="#06d6a0"/>
+        <circle cx="45" cy="52" r="29" fill="#ffe8d6"/>
+        <ellipse cx="31" cy="60" rx="8.5" ry="5.5" fill="#ff7eb3" opacity=".5"/>
+        <ellipse cx="59" cy="60" rx="8.5" ry="5.5" fill="#ff7eb3" opacity=".5"/>
+        <path d="M31 49 Q36 56 41 49" stroke="#2d1b3d" stroke-width="2.8" fill="#2d1b3d"/>
+        <path d="M49 49 Q54 56 59 49" stroke="#2d1b3d" stroke-width="2.8" fill="#2d1b3d"/>
+        <path d="M32 64 Q45 73 58 64" stroke="#c9184a" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="45" cy="23" rx="29" ry="12" fill="#ffd166"/>
+        <ellipse cx="17" cy="37" rx="9" ry="14" fill="#ffd166"/>
+        <ellipse cx="73" cy="37" rx="9" ry="14" fill="#ffd166"/>
+        <circle cx="17" cy="21" r="5" fill="#ff2d6f"/>
+        <circle cx="73" cy="21" r="5" fill="#ff2d6f"/>
+        <!-- banner held up -->
+        <rect x="0" y="20" width="88" height="20" rx="4" fill="#ff2d6f" opacity=".92"/>
+        <path d="M0 20 L6 30 L0 40" fill="#c9184a"/>
+        <path d="M88 20 L82 30 L88 40" fill="#c9184a"/>
+        <text x="44" y="34" text-anchor="middle" font-size="10" fill="white" font-family="Quicksand" font-weight="700">YES! YES! YES!</text>
+        <!-- arms up holding banner -->
+        <path d="M22 78 Q10 56 10 36" stroke="#ffe8d6" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <path d="M68 78 Q80 56 80 36" stroke="#ffe8d6" stroke-width="8" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+
+    <div class="ribbon-text" id="yesText">She Said YES!! 🎊</div>
+    <div style="margin-top:10px;margin-bottom:20px;">
+      <span style="font-size:2.5rem;animation:heartbeat 1s ease-in-out infinite;display:inline-block;">💖</span>
+      <span style="font-size:2.5rem;animation:heartbeat 1s ease-in-out .2s infinite;display:inline-block;">💖</span>
+      <span style="font-size:2.5rem;animation:heartbeat 1s ease-in-out .4s infinite;display:inline-block;">💖</span>
+    </div>
+
+    <div style="background:rgba(255,255,255,.07);border-radius:20px;padding:20px 24px;border:1px solid rgba(255,126,179,.25);margin-bottom:22px;">
+      <p style="color:rgba(255,255,255,.9);line-height:1.8;font-size:1rem;" class="typewriter" id="finalMsg">
+        From this moment, every sunset is ours. 🌅
+      </p>
+      <p style="color:rgba(255,255,255,.75);line-height:1.8;font-size:.95rem;margin-top:10px;">
+        I promise to be your laugh on hard days,<br/>
+        your warmth on cold nights, and your<br/>
+        <span style="color:var(--gold);font-weight:700;">person — always. 💫</span>
+      </p>
+    </div>
+
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-gold" onclick="launchFireworks()">🎆 Celebrate!</button>
+      <button class="btn btn-ghost" onclick="goTo(1)">Start over 🌸</button>
+    </div>
+  </div>
+</div>
+
+<!-- Progress dots -->
+<div id="progress">
+  <div class="pdot on" id="dot1"></div>
+  <div class="pdot" id="dot2"></div>
+  <div class="pdot" id="dot3"></div>
+  <div class="pdot" id="dot4"></div>
+</div>
+
+<!-- ─── SCRIPT ─── -->
+<script>
+// ── STAR FIELD
+const sb = document.getElementById('starBg');
+for(let i=0;i<90;i++){
+  const s=document.createElement('div');
+  s.className='stardot';
+  const sz=Math.random()*4+1.5;
+  s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;
+    width:${sz}px;height:${sz}px;
+    animation-duration:${Math.random()*3+2}s;
+    animation-delay:${Math.random()*4}s;`;
+  sb.appendChild(s);
+}
+
+// ── FLOATING HEARTS
+const fh=document.getElementById('floatingHearts');
+const heartsArr=['💗','💓','💕','💖','💝','🩷','✨','🌸'];
+function spawnHeart(){
+  const h=document.createElement('div');
+  h.className='fheart';
+  h.textContent=heartsArr[Math.floor(Math.random()*heartsArr.length)];
+  h.style.cssText=`left:${Math.random()*100}%;
+    font-size:${Math.random()*1.2+0.8}rem;
+    animation-duration:${Math.random()*8+7}s;
+    animation-delay:${Math.random()*3}s;`;
+  fh.appendChild(h);
+  setTimeout(()=>h.remove(),13000);
+}
+for(let i=0;i<20;i++) setTimeout(()=>spawnHeart(),i*600);
+setInterval(spawnHeart,2000);
+
+// ── CURSOR
+const cur=document.getElementById('cursor');
+const ring=document.getElementById('cursor-ring');
+document.addEventListener('mousemove',e=>{
+  cur.style.left=e.clientX+'px';
+  cur.style.top=e.clientY+'px';
+  ring.style.left=e.clientX+'px';
+  ring.style.top=e.clientY+'px';
+  if(Math.random()>.6) spawnSparkle(e.clientX,e.clientY);
+});
+
+function spawnSparkle(x,y){
+  const s=document.createElement('div');
+  s.className='spark';
+  const emojis=['✨','💗','🌸','⭐','💫','🩷'];
+  s.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+  const tx=(Math.random()-0.5)*80+'px';
+  const ty=(Math.random()*-60-20)+'px';
+  s.style.cssText=`left:${x}px;top:${y}px;--tx:${tx};--ty:${ty};`;
+  document.body.appendChild(s);
+  setTimeout(()=>s.remove(),750);
+}
+
+// ── PAGE NAVIGATION
+let current=1;
+const pages=[null,
+  document.getElementById('p1'),
+  document.getElementById('p2'),
+  document.getElementById('p3'),
+  document.getElementById('p4')];
+const dots=[null,...[1,2,3,4].map(i=>document.getElementById('dot'+i))];
+
+function goTo(n){
+  const prev=pages[current];
+  prev.classList.add(n>current?'exit-up':'exit-down');
+  setTimeout(()=>{prev.classList.remove('active','exit-up','exit-down');},650);
+  setTimeout(()=>{
+    current=n;
+    pages[n].classList.add('active');
+    dots.forEach((d,i)=>{if(d)d.classList.toggle('on',i===n);});
+    if(n===2) animateReasons();
+    if(n===4){ launchFireworks(); startTypewriter(); }
+  },660);
+}
+
+// ── REASONS STAGGER
+function animateReasons(){
+  document.querySelectorAll('.reason-card').forEach((c,i)=>{
+    c.classList.remove('show');
+    setTimeout(()=>c.classList.add('show'),180+i*120);
+  });
+}
+
+// ── NO BUTTON ESCAPE
+let noMoves=0;
+function runAwayNo(){
+  noMoves++;
+  const btn=document.getElementById('noBtn');
+  const maxX=window.innerWidth-120,maxY=window.innerHeight-60;
+  const rx=Math.random()*maxX;
+  const ry=Math.random()*maxY;
+  btn.style.position='fixed';
+  btn.style.left=rx+'px';
+  btn.style.top=ry+'px';
+  btn.style.transition='all .35s cubic-bezier(.34,1.56,.64,1)';
+  if(noMoves>4){
+    btn.textContent='Fine, YES!! 💖';
+    btn.onclick=()=>goTo(4);
+    btn.style.background='linear-gradient(135deg,#ff2d6f,#c9184a)';
+    btn.style.color='white';
+  }
+}
+
+// ── TYPEWRITER P4
+function startTypewriter(){
+  const el=document.getElementById('finalMsg');
+  if(el) el.style.animation='none';
+  setTimeout(()=>{ if(el) el.style.animation=''; },50);
+}
+
+// ── FIREWORKS
+function launchFireworks(){
+  const fw=document.getElementById('fwWrap');
+  const colors=['#ff2d6f','#ffd166','#c77dff','#06d6a0','#ff7eb3','white','#7dd3fc'];
+  for(let burst=0;burst<8;burst++){
+    setTimeout(()=>{
+      const cx=Math.random()*window.innerWidth;
+      const cy=Math.random()*window.innerHeight*.6+50;
+      for(let p=0;p<28;p++){
+        const particle=document.createElement('div');
+        particle.className='fw-particle';
+        const angle=Math.random()*Math.PI*2;
+        const dist=Math.random()*200+80;
+        particle.style.cssText=`
+          left:${cx}px;top:${cy}px;
+          background:${colors[Math.floor(Math.random()*colors.length)]};
+          width:${Math.random()*8+4}px;height:${Math.random()*8+4}px;
+          border-radius:${Math.random()>.5?'50%':'2px'};
+          --fx:${Math.cos(angle)*dist}px;
+          --fy:${Math.sin(angle)*dist}px;
+          animation-duration:${Math.random()*.8+.8}s;
+          animation-delay:${Math.random()*.2}s;`;
+        fw.appendChild(particle);
+        setTimeout(()=>particle.remove(),2000);
+      }
+    },burst*220);
+  }
+  // Also spawn heart emojis
+  for(let i=0;i<20;i++){
+    setTimeout(()=>spawnHeart(),i*150);
+  }
+}
+
+// Auto-launch soft fireworks on page 4 entry
+// (called from goTo)
+
+// Animate YES text swap based on gender-neutral default
+document.getElementById('yesText').textContent = 'They Said YES!! 🎊';
+</script>
+</body>
+</html>

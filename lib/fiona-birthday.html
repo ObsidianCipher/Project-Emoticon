@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Happy Birthday Fiona 🎂</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Space+Mono:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --deep-purple: #1a0030;
+    --purple: #6b00c2;
+    --violet: #9b1dff;
+    --magenta: #c2006b;
+    --red: #e8002a;
+    --crimson: #ff1744;
+    --rose: #ff4d6d;
+    --glow-purple: rgba(155, 29, 255, 0.6);
+    --glow-red: rgba(232, 0, 42, 0.6);
+    --text-light: #f5e6ff;
+    --text-dim: rgba(245, 230, 255, 0.6);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--deep-purple);
+    overflow: hidden;
+    font-family: 'Space Mono', monospace;
+    color: var(--text-light);
+  }
+
+  /* ── PARTICLE CANVAS ── */
+  #particles {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  }
+
+  /* ── PAGES ── */
+  .page {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 1; opacity: 0; pointer-events: none;
+    transition: opacity 0.8s ease;
+    padding: 20px;
+  }
+  .page.active { opacity: 1; pointer-events: all; }
+
+  /* ── NAV DOTS ── */
+  #nav {
+    position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 12px; z-index: 100;
+  }
+  .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--text-dim); cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid var(--violet);
+  }
+  .dot.active {
+    background: var(--crimson);
+    box-shadow: 0 0 12px var(--glow-red);
+    transform: scale(1.4);
+  }
+
+  /* ── NAV ARROWS ── */
+  .nav-btn {
+    position: fixed; top: 50%; z-index: 100;
+    transform: translateY(-50%);
+    background: rgba(107, 0, 194, 0.3);
+    border: 1px solid var(--violet);
+    color: var(--text-light);
+    width: 40px; height: 40px; border-radius: 50%;
+    cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+  }
+  .nav-btn:hover {
+    background: rgba(155, 29, 255, 0.5);
+    box-shadow: 0 0 20px var(--glow-purple);
+  }
+  #prev { left: 14px; }
+  #next { right: 14px; }
+
+  /* ════════════════════════════════
+     PAGE 1 — INTRO / HERO
+  ════════════════════════════════ */
+  #p1 { overflow: hidden; }
+
+  .grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(107,0,194,0.15) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(107,0,194,0.15) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: gridMove 12s linear infinite;
+  }
+  @keyframes gridMove {
+    from { background-position: 0 0; }
+    to   { background-position: 40px 40px; }
+  }
+
+  .hero-glitch {
+    position: relative; text-align: center; z-index: 2;
+  }
+
+  .label-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(10px, 2.5vw, 13px);
+    letter-spacing: 6px;
+    color: var(--crimson);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    opacity: 0; animation: fadeUp 0.8s 0.3s forwards;
+  }
+
+  .hero-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 18vw, 180px);
+    line-height: 0.9;
+    background: linear-gradient(135deg, var(--crimson) 0%, var(--violet) 50%, var(--rose) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+    filter: drop-shadow(0 0 30px var(--glow-red));
+    animation: nameReveal 1.2s 0.6s cubic-bezier(0.16,1,0.3,1) both;
+  }
+  @keyframes nameReveal {
+    from { transform: scaleX(0.3) skewX(-15deg); opacity: 0; }
+    to   { transform: scaleX(1) skewX(0deg); opacity: 1; }
+  }
+
+  /* glitch layers */
+  .hero-name::before, .hero-name::after {
+    content: attr(data-text);
+    position: absolute; top: 0; left: 0; width: 100%;
+    background: inherit; -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; background-clip: text;
+    animation: glitch1 4s infinite;
+  }
+  .hero-name::after { animation: glitch2 4s infinite; }
+  @keyframes glitch1 {
+    0%,90%,100% { clip-path: none; transform: none; }
+    92% { clip-path: inset(30% 0 40% 0); transform: translate(-4px,0); filter: drop-shadow(0 0 20px var(--glow-purple)); }
+    95% { clip-path: inset(60% 0 10% 0); transform: translate(4px,0); }
+  }
+  @keyframes glitch2 {
+    0%,85%,100% { clip-path: none; transform: none; }
+    87% { clip-path: inset(10% 0 60% 0); transform: translate(4px,0); filter: drop-shadow(0 0 20px var(--glow-red)); }
+    90% { clip-path: inset(50% 0 20% 0); transform: translate(-4px,0); }
+  }
+
+  .hero-sub {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(16px, 4vw, 28px);
+    font-style: italic;
+    color: var(--text-dim);
+    margin-top: 12px;
+    opacity: 0; animation: fadeUp 0.8s 1.1s forwards;
+  }
+
+  .hero-date {
+    margin-top: 30px;
+    font-size: clamp(11px, 2.5vw, 13px);
+    letter-spacing: 4px;
+    color: var(--violet);
+    opacity: 0; animation: fadeUp 0.8s 1.4s forwards;
+  }
+
+  .scroll-hint {
+    position: absolute; bottom: 60px;
+    font-size: 11px; letter-spacing: 3px; color: var(--text-dim);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  /* corner decorations */
+  .corner {
+    position: absolute; width: 60px; height: 60px;
+    border-color: var(--violet); border-style: solid;
+    opacity: 0.5;
+  }
+  .corner.tl { top: 20px; left: 20px; border-width: 2px 0 0 2px; }
+  .corner.tr { top: 20px; right: 20px; border-width: 2px 2px 0 0; }
+  .corner.bl { bottom: 50px; left: 20px; border-width: 0 0 2px 2px; }
+  .corner.br { bottom: 50px; right: 20px; border-width: 0 2px 2px 0; }
+
+  /* ════════════════════════════════
+     PAGE 2 — CAKE
+  ════════════════════════════════ */
+  #p2 { gap: 20px; }
+
+  .cake-section {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 16px; z-index: 2;
+    max-width: 500px; width: 100%;
+    text-align: center;
+  }
+
+  .cake-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 10vw, 72px);
+    background: linear-gradient(135deg, var(--rose), var(--violet));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 4px;
+  }
+
+  /* SVG CAKE */
+  .cake-wrap {
+    position: relative;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-12px); }
+  }
+
+  .cake-svg { width: clamp(200px, 50vw, 280px); height: auto; filter: drop-shadow(0 0 30px rgba(200,0,120,0.5)); }
+
+  .candle-flame {
+    animation: flicker 0.15s infinite alternate;
+    transform-origin: center bottom;
+  }
+  @keyframes flicker {
+    from { transform: scaleX(0.9) scaleY(1.05); opacity: 0.95; }
+    to   { transform: scaleX(1.1) scaleY(0.95); opacity: 1; }
+  }
+
+  .greet-box {
+    border: 1px solid rgba(155, 29, 255, 0.4);
+    background: rgba(26, 0, 48, 0.7);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: clamp(16px, 4vw, 28px);
+    position: relative;
+    overflow: hidden;
+  }
+  .greet-box::before {
+    content: '';
+    position: absolute; top: -1px; left: 20%; right: 20%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--crimson), transparent);
+  }
+  .greet-box p {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(14px, 3.5vw, 19px);
+    line-height: 1.7;
+    color: var(--text-light);
+  }
+  .greet-box p span { color: var(--crimson); font-weight: 700; }
+
+  /* confetti burst */
+  .confetti-ring {
+    position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+  }
+  .c-dot {
+    position: absolute;
+    width: 6px; height: 6px; border-radius: 50%;
+    animation: confettiFall linear infinite;
+  }
+  @keyframes confettiFall {
+    0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ════════════════════════════════
+     PAGE 3 — POEM + WISHES
+  ════════════════════════════════ */
+  #p3 { padding: 40px 20px 70px; justify-content: flex-start; overflow-y: auto; }
+
+  .wishes-wrap { max-width: 560px; width: 100%; z-index: 2; }
+
+  .section-label {
+    font-size: 11px; letter-spacing: 6px; color: var(--crimson);
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 10vw, 64px);
+    line-height: 1;
+    background: linear-gradient(90deg, var(--violet), var(--crimson));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 24px;
+  }
+
+  .poem-card {
+    background: rgba(107, 0, 194, 0.12);
+    border: 1px solid rgba(155, 29, 255, 0.3);
+    border-radius: 16px;
+    padding: clamp(18px, 5vw, 32px);
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .poem-card::after {
+    content: '✦';
+    position: absolute; bottom: 12px; right: 16px;
+    color: var(--violet); opacity: 0.4; font-size: 24px;
+  }
+  .poem-card .quote-mark {
+    font-family: 'Playfair Display', serif;
+    font-size: 80px; line-height: 0.6;
+    color: var(--crimson); opacity: 0.3;
+    display: block; margin-bottom: 10px;
+  }
+  .poem-card p {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(14px, 3.5vw, 17px);
+    line-height: 2;
+    color: var(--text-light);
+  }
+  .poem-card .poem-line { display: block; }
+
+  .wishes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .wish-card {
+    background: rgba(232, 0, 42, 0.08);
+    border: 1px solid rgba(232, 0, 42, 0.25);
+    border-radius: 12px;
+    padding: 16px 14px;
+    transition: all 0.3s ease;
+  }
+  .wish-card:hover {
+    background: rgba(232, 0, 42, 0.18);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(232,0,42,0.2);
+  }
+  .wish-icon { font-size: 22px; margin-bottom: 8px; }
+  .wish-card h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(14px, 3.5vw, 18px);
+    letter-spacing: 2px;
+    color: var(--rose);
+    margin-bottom: 6px;
+  }
+  .wish-card p {
+    font-size: clamp(11px, 2.5vw, 13px);
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .final-msg {
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(14px, 3.5vw, 18px);
+    color: var(--text-light);
+    line-height: 1.8;
+    padding: 20px;
+    border-top: 1px solid rgba(155,29,255,0.3);
+    margin-top: 8px;
+  }
+  .final-msg .sig {
+    display: block; margin-top: 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px; letter-spacing: 3px;
+    color: var(--violet);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .page.active .poem-card,
+  .page.active .wish-card,
+  .page.active .section-title {
+    animation: fadeUp 0.6s ease both;
+  }
+  .page.active .wish-card:nth-child(1) { animation-delay: 0.1s; }
+  .page.active .wish-card:nth-child(2) { animation-delay: 0.2s; }
+  .page.active .wish-card:nth-child(3) { animation-delay: 0.3s; }
+  .page.active .wish-card:nth-child(4) { animation-delay: 0.4s; }
+
+  /* scan line overlay */
+  body::after {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 999;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px
+    );
+  }
+
+  /* responsive */
+  @media (max-width: 480px) {
+    .wishes-grid { grid-template-columns: 1fr; }
+    .corner { display: none; }
+    #prev { left: 6px; }
+    #next { right: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<!-- NAV -->
+<button class="nav-btn" id="prev">&#8592;</button>
+<button class="nav-btn" id="next">&#8594;</button>
+<div id="nav">
+  <div class="dot active" data-page="0"></div>
+  <div class="dot" data-page="1"></div>
+  <div class="dot" data-page="2"></div>
+</div>
+
+<!-- ══ PAGE 1: HERO ══ -->
+<div class="page active" id="p1">
+  <div class="grid-bg"></div>
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <div class="hero-glitch">
+    <div class="label-tag">✦ &nbsp; A Birthday Tribute &nbsp; ✦</div>
+    <div class="hero-name" data-text="FIONA">FIONA</div>
+    <div class="hero-sub">To my dearest friend &amp; soul ✨</div>
+    <div class="hero-date">HAPPY BIRTHDAY — THIS IS YOUR DAY</div>
+  </div>
+
+  <div class="scroll-hint">→ SWIPE OR TAP ARROW TO CONTINUE →</div>
+</div>
+
+<!-- ══ PAGE 2: CAKE ══ -->
+<div class="page" id="p2">
+  <div class="confetti-ring" id="confetti"></div>
+  <div class="cake-section">
+    <div class="cake-title">Make a Wish</div>
+
+    <!-- CAKE SVG -->
+    <div class="cake-wrap">
+      <svg class="cake-svg" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="bodyG" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#6b00c2"/>
+            <stop offset="100%" stop-color="#c2006b"/>
+          </linearGradient>
+          <linearGradient id="frostG" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#9b1dff"/>
+            <stop offset="50%" stop-color="#ff4d6d"/>
+            <stop offset="100%" stop-color="#9b1dff"/>
+          </linearGradient>
+          <linearGradient id="plateG" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#3a004a"/>
+            <stop offset="100%" stop-color="#1a0030"/>
+          </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- plate -->
+        <ellipse cx="140" cy="248" rx="110" ry="14" fill="url(#plateG)" stroke="#6b00c2" stroke-width="1"/>
+
+        <!-- cake body -->
+        <rect x="50" y="175" width="180" height="70" rx="8" fill="url(#bodyG)"/>
+        <!-- cake layer 2 -->
+        <rect x="65" y="125" width="150" height="55" rx="8" fill="#7a00d4"/>
+        <!-- cake layer 3 top -->
+        <rect x="85" y="85" width="110" height="45" rx="8" fill="#8a00e0"/>
+
+        <!-- frosting drips bottom layer -->
+        <path d="M50,182 Q65,170 80,182 Q95,170 110,182 Q125,170 140,182 Q155,170 170,182 Q185,170 200,182 Q215,170 230,182 V175 H50 Z" fill="url(#frostG)" opacity="0.9"/>
+        <!-- frosting drips middle layer -->
+        <path d="M65,132 Q78,120 91,132 Q104,120 117,132 Q130,120 143,132 Q156,120 169,132 Q182,120 195,132 Q208,120 215,132 V125 H65 Z" fill="url(#frostG)" opacity="0.9"/>
+        <!-- frosting drips top layer -->
+        <path d="M85,93 Q96,82 107,93 Q118,82 129,93 Q140,82 151,93 Q162,82 173,93 Q184,82 195,93 V85 H85 Z" fill="url(#frostG)" opacity="0.9"/>
+
+        <!-- decorative dots -->
+        <circle cx="90" cy="210" r="5" fill="#ff4d6d" filter="url(#glow)"/>
+        <circle cx="140" cy="205" r="5" fill="#9b1dff" filter="url(#glow)"/>
+        <circle cx="190" cy="210" r="5" fill="#ff4d6d" filter="url(#glow)"/>
+        <circle cx="100" cy="155" r="4" fill="#ff1744" filter="url(#glow)"/>
+        <circle cx="155" cy="152" r="4" fill="#9b1dff" filter="url(#glow)"/>
+        <circle cx="110" cy="110" r="4" fill="#ff4d6d" filter="url(#glow)"/>
+        <circle cx="160" cy="107" r="4" fill="#c2006b" filter="url(#glow)"/>
+
+        <!-- stars on cake -->
+        <text x="128" y="118" font-size="14" fill="#ff4d6d" opacity="0.8">✦</text>
+        <text x="78" y="200" font-size="12" fill="#9b1dff" opacity="0.7">★</text>
+        <text x="195" y="200" font-size="12" fill="#ff1744" opacity="0.7">★</text>
+
+        <!-- candle 1 -->
+        <rect x="118" y="55" width="10" height="32" rx="4" fill="#c2006b"/>
+        <rect x="118" y="55" width="10" height="16" rx="3" fill="#e8002a" opacity="0.5"/>
+        <!-- wick -->
+        <line x1="123" y1="55" x2="123" y2="49" stroke="#6b00c2" stroke-width="1.5"/>
+        <!-- flame 1 -->
+        <g class="candle-flame">
+          <ellipse cx="123" cy="44" rx="6" ry="9" fill="#ff9500" opacity="0.9"/>
+          <ellipse cx="123" cy="45" rx="3.5" ry="6" fill="#ffe000"/>
+          <ellipse cx="123" cy="47" rx="2" ry="3.5" fill="#fff" opacity="0.8"/>
+        </g>
+
+        <!-- candle 2 -->
+        <rect x="148" y="58" width="10" height="29" rx="4" fill="#9b1dff"/>
+        <rect x="148" y="58" width="10" height="14" rx="3" fill="#6b00c2" opacity="0.5"/>
+        <line x1="153" y1="58" x2="153" y2="52" stroke="#c2006b" stroke-width="1.5"/>
+        <g class="candle-flame" style="animation-delay:0.07s">
+          <ellipse cx="153" cy="47" rx="6" ry="9" fill="#ff4d6d" opacity="0.9"/>
+          <ellipse cx="153" cy="48" rx="3.5" ry="6" fill="#ffb3c6"/>
+          <ellipse cx="153" cy="50" rx="2" ry="3.5" fill="#fff" opacity="0.8"/>
+        </g>
+
+        <!-- candle 3 -->
+        <rect x="100" y="60" width="10" height="27" rx="4" fill="#e8002a"/>
+        <line x1="105" y1="60" x2="105" y2="54" stroke="#6b00c2" stroke-width="1.5"/>
+        <g class="candle-flame" style="animation-delay:0.12s">
+          <ellipse cx="105" cy="49" rx="5.5" ry="8" fill="#ff6600" opacity="0.9"/>
+          <ellipse cx="105" cy="50" rx="3" ry="5.5" fill="#ffdd00"/>
+          <ellipse cx="105" cy="52" rx="1.8" ry="3" fill="#fff" opacity="0.8"/>
+        </g>
+
+        <!-- glow under cake -->
+        <ellipse cx="140" cy="244" rx="90" ry="8" fill="#6b00c2" opacity="0.3" filter="url(#glow)"/>
+      </svg>
+    </div>
+
+    <div class="greet-box">
+      <p>
+        🎂 <span>Fiona</span>, today the universe pauses to celebrate you.<br/>
+        May every candle you blow carry a wish that comes true,<br/>
+        and may this year overflow with magic, laughter &amp; love. 💜❤️
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE 3: POEM + WISHES ══ -->
+<div class="page" id="p3">
+  <div class="wishes-wrap">
+    <div class="section-label">✦ For You, Always</div>
+    <div class="section-title">Birthday<br/>Wishes</div>
+
+    <div class="poem-card">
+      <span class="quote-mark">"</span>
+      <p>
+        <span class="poem-line">In galaxies spun from violet light,</span>
+        <span class="poem-line">a soul like yours burns crimson bright.</span>
+        <span class="poem-line">Through every storm, through every dawn,</span>
+        <span class="poem-line">you rise — fierce, free, and carried on.</span>
+        <span class="poem-line">&nbsp;</span>
+        <span class="poem-line">May every dream you've dared to hold</span>
+        <span class="poem-line">become the stories yet untold.</span>
+        <span class="poem-line">Happy Birthday, Fiona — my friend so true,</span>
+        <span class="poem-line">the world shines better because of you. 🌟</span>
+      </p>
+    </div>
+
+    <div class="wishes-grid">
+      <div class="wish-card">
+        <div class="wish-icon">💜</div>
+        <h3>Joy Always</h3>
+        <p>May your heart be full of laughter every single day this year.</p>
+      </div>
+      <div class="wish-card">
+        <div class="wish-icon">🔥</div>
+        <h3>Bold Dreams</h3>
+        <p>Chase every wild ambition. Your potential is limitless, Fiona.</p>
+      </div>
+      <div class="wish-card">
+        <div class="wish-icon">✨</div>
+        <h3>New Adventures</h3>
+        <p>May thrilling chapters unfold in your life's most beautiful story.</p>
+      </div>
+      <div class="wish-card">
+        <div class="wish-icon">🌹</div>
+        <h3>Love & Light</h3>
+        <p>Surrounded by warmth, friendship & the people who cherish you.</p>
+      </div>
+    </div>
+
+    <div class="final-msg">
+      Here's to you, <strong>Fiona</strong> — the most brilliant,<br/>
+      radiant, irreplaceable friend I could ever ask for. 🥂<br/>
+      <span class="sig">— With all my love, always ✦</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── PARTICLE SYSTEM ──
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const colors = ['#9b1dff','#e8002a','#ff4d6d','#6b00c2','#ff1744','#c2006b'];
+
+  function randomParticle() {
+    return {
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 2.5 + 0.5,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      alpha: Math.random() * 0.6 + 0.2,
+      twinkle: Math.random() * Math.PI * 2
+    };
+  }
+
+  for (let i = 0; i < 120; i++) particles.push(randomParticle());
+
+  function animParticles() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      p.twinkle += 0.04;
+      const a = p.alpha * (0.6 + 0.4 * Math.sin(p.twinkle));
+      if (p.x < -5 || p.x > W+5) p.vx *= -1;
+      if (p.y < -5 || p.y > H+5) p.vy *= -1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = a;
+      ctx.fill();
+      // glow
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 8;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
+    });
+    requestAnimationFrame(animParticles);
+  }
+  animParticles();
+
+  // ── CONFETTI DOTS ──
+  const ring = document.getElementById('confetti');
+  const confColors = ['#9b1dff','#e8002a','#ff4d6d','#ffb3c6','#c2006b','#fff'];
+  for (let i = 0; i < 30; i++) {
+    const d = document.createElement('div');
+    d.className = 'c-dot';
+    d.style.left  = Math.random() * 100 + '%';
+    d.style.background = confColors[Math.floor(Math.random() * confColors.length)];
+    d.style.animationDuration = (Math.random() * 5 + 4) + 's';
+    d.style.animationDelay   = (Math.random() * 4) + 's';
+    d.style.width  = (Math.random() * 8 + 4) + 'px';
+    d.style.height = (Math.random() * 8 + 4) + 'px';
+    ring.appendChild(d);
+  }
+
+  // ── PAGE NAVIGATION ──
+  const pages = [...document.querySelectorAll('.page')];
+  const dots  = [...document.querySelectorAll('.dot')];
+  let current = 0;
+
+  function goTo(n) {
+    pages[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = (n + pages.length) % pages.length;
+    pages[current].classList.add('active');
+    dots[current].classList.add('active');
+    // Reset page 3 scroll
+    if (current === 2) pages[2].scrollTop = 0;
+  }
+
+  document.getElementById('next').addEventListener('click', () => goTo(current + 1));
+  document.getElementById('prev').addEventListener('click', () => goTo(current - 1));
+  dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.page)));
+
+  // touch swipe
+  let tx = 0;
+  document.addEventListener('touchstart', e => tx = e.touches[0].clientX, {passive:true});
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) goTo(dx < 0 ? current + 1 : current - 1);
+  }, {passive:true});
+
+  // keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  goTo(current + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')    goTo(current - 1);
+  });
+</script>
+</body>
+</html>

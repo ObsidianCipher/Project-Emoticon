@@ -1,0 +1,18 @@
+{
+  "name": "emoticon",
+  "version": "1.0.0",
+  "description": "Emoticon greeting server",
+  "main": "Src/server.js",
+  "scripts": {
+    "start": "node Src/server.js"
+  },
+  "engines": {
+    "node": ">=12"
+  },
+  "dependencies": {
+    "express": "^4.18.4",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "sqlite3": "^5.1.6"
+  }
+}

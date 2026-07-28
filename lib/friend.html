@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Thank You For Being My Friend</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink: #0a0a12;
+  --paper: #f5f0e8;
+  --gold: #c8a96e;
+  --gold-light: #e8d5a3;
+  --electric: #00f5d4;
+  --plasma: #ff3c6e;
+  --void: #050508;
+  --ghost: rgba(200,169,110,0.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--void);
+  color: var(--paper);
+  font-family: 'Space Mono', monospace;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* CUSTOM CURSOR */
+#cursor {
+  position: fixed;
+  width: 12px; height: 12px;
+  background: var(--electric);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+  transition: transform 0.1s ease;
+  transform: translate(-50%, -50%);
+}
+#cursor-ring {
+  position: fixed;
+  width: 36px; height: 36px;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transition: all 0.18s ease;
+  transform: translate(-50%, -50%);
+}
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 3rem;
+  background: rgba(5,5,8,0.6);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(200,169,110,0.15);
+}
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+}
+.nav-links {
+  display: flex; gap: 2.5rem;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.5);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.nav-links a:hover { color: var(--electric); }
+
+/* PAGES */
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ========================
+   PAGE 1 — HERO
+======================== */
+#page1 {
+  background: var(--void);
+  flex-direction: column;
+}
+.starfield {
+  position: absolute; inset: 0;
+  overflow: hidden;
+}
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: white;
+  animation: twinkle var(--d, 3s) ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+  from { opacity: var(--lo, 0.1); transform: scale(1); }
+  to   { opacity: var(--hi, 0.9); transform: scale(1.4); }
+}
+
+.hero-center {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-eyebrow {
+  font-size: 0.6rem;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--electric);
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeUp 1s 0.3s forwards;
+}
+
+.hero-title {
+  font-family: 'Bodoni Moda', serif;
+  font-size: clamp(3.5rem, 9vw, 9rem);
+  line-height: 0.9;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  opacity: 0;
+  animation: fadeUp 1.2s 0.6s forwards;
+}
+.hero-title .line1 { display: block; color: var(--paper); }
+.hero-title .line2 { display: block; color: var(--gold); font-style: italic; }
+.hero-title .line3 { display: block; color: var(--paper); }
+
+.hero-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2.5vw, 1.6rem);
+  color: rgba(245,240,232,0.45);
+  margin-top: 2rem;
+  letter-spacing: 0.08em;
+  opacity: 0;
+  animation: fadeUp 1s 1s forwards;
+}
+
+.scroll-cue {
+  position: absolute;
+  bottom: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  color: rgba(245,240,232,0.3);
+  text-transform: uppercase;
+  animation: float 2.5s ease-in-out infinite;
+}
+.scroll-line {
+  width: 1px; height: 50px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: grow 2.5s ease-in-out infinite;
+}
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+@keyframes grow  { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(1.2)} }
+
+/* orb */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+.orb1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(0,245,212,0.15), transparent 70%);
+  top: -100px; right: -100px;
+  animation: drift1 12s ease-in-out infinite alternate;
+}
+.orb2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(255,60,110,0.12), transparent 70%);
+  bottom: -80px; left: -80px;
+  animation: drift2 10s ease-in-out infinite alternate;
+}
+.orb3 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(200,169,110,0.1), transparent 70%);
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  animation: pulse3 8s ease-in-out infinite;
+}
+@keyframes drift1 { to { transform: translate(-60px, 80px); } }
+@keyframes drift2 { to { transform: translate(60px, -60px); } }
+@keyframes pulse3 { 0%,100%{opacity:0.5} 50%{opacity:1} }
+
+/* ========================
+   PAGE 2 — MEMORY / GLITCH
+======================== */
+#page2 {
+  background: #08090f;
+  flex-direction: column;
+  padding: 8rem 4rem;
+}
+
+.section-label {
+  font-size: 0.55rem;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--plasma);
+  margin-bottom: 1.5rem;
+}
+
+.glitch-title {
+  font-family: 'Bodoni Moda', serif;
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  font-weight: 700;
+  position: relative;
+  display: inline-block;
+}
+.glitch-title::before,
+.glitch-title::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.glitch-title::before {
+  color: var(--plasma);
+  animation: glitch1 3s infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+}
+.glitch-title::after {
+  color: var(--electric);
+  animation: glitch2 3s infinite;
+  clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+}
+@keyframes glitch1 {
+  0%,90%,100% { transform: translate(0); opacity:0; }
+  91% { transform: translate(-3px, 1px); opacity: 0.7; }
+  93% { transform: translate(3px, -1px); opacity: 0.7; }
+  95% { transform: translate(0); opacity: 0; }
+}
+@keyframes glitch2 {
+  0%,92%,100% { transform: translate(0); opacity:0; }
+  93% { transform: translate(4px, 2px); opacity: 0.6; }
+  96% { transform: translate(-4px, -2px); opacity: 0.6; }
+  98% { transform: translate(0); opacity: 0; }
+}
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5px;
+  max-width: 900px;
+  margin: 4rem auto 0;
+}
+.mem-cell {
+  aspect-ratio: 1;
+  background: var(--ghost);
+  border: 1px solid rgba(200,169,110,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(0.75rem, 1.5vw, 1.1rem);
+  color: rgba(245,240,232,0.6);
+  text-align: center;
+  padding: 1.5rem;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+  cursor: none;
+}
+.mem-cell::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--electric), var(--plasma));
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.mem-cell:hover::before { opacity: 0.08; }
+.mem-cell:hover {
+  border-color: rgba(200,169,110,0.4);
+  color: var(--gold-light);
+  transform: scale(1.015);
+}
+.mem-cell.large {
+  grid-column: span 2;
+  aspect-ratio: 2/1;
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  font-style: italic;
+}
+.mem-number {
+  position: absolute;
+  top: 0.6rem; left: 0.8rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.5rem;
+  color: var(--gold);
+  opacity: 0.4;
+  font-style: normal;
+}
+
+/* ========================
+   PAGE 3 — SIGNAL / TECH
+======================== */
+#page3 {
+  background: var(--void);
+  flex-direction: column;
+  padding: 8rem 2rem;
+}
+
+.signal-container {
+  width: 100%;
+  max-width: 1000px;
+  position: relative;
+}
+
+.signal-header {
+  text-align: center;
+  margin-bottom: 5rem;
+}
+
+.waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 80px;
+  margin-bottom: 1rem;
+}
+.waveform-bar {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--electric);
+  animation: wave var(--spd, 1s) ease-in-out infinite alternate;
+  transform-origin: center;
+}
+@keyframes wave {
+  from { height: 4px; opacity: 0.3; }
+  to   { height: var(--h, 40px); opacity: 1; }
+}
+
+.metric-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(200,169,110,0.08);
+  border: 1px solid rgba(200,169,110,0.08);
+  margin-bottom: 1px;
+}
+.metric {
+  background: #08090f;
+  padding: 2.5rem 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+.metric:hover { background: #0d0e18; }
+.metric-val {
+  font-family: 'Bodoni Moda', serif;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+.metric-label {
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.35);
+}
+.metric-bar {
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 2px;
+  background: linear-gradient(to right, var(--electric), var(--plasma));
+  animation: fill-bar 3s ease-in-out infinite alternate;
+}
+@keyframes fill-bar { from {width:20%} to {width:100%} }
+
+.terminal {
+  background: #030305;
+  border: 1px solid rgba(0,245,212,0.15);
+  padding: 2rem 2.5rem;
+  font-size: 0.75rem;
+  line-height: 2;
+  color: rgba(245,240,232,0.5);
+  position: relative;
+  margin-top: 1px;
+}
+.terminal::before {
+  content: '● ● ●';
+  position: absolute;
+  top: 1rem; left: 1.5rem;
+  font-size: 0.5rem;
+  letter-spacing: 0.5rem;
+  color: rgba(200,169,110,0.3);
+}
+.t-prompt { color: var(--electric); }
+.t-cmd    { color: var(--paper); }
+.t-out    { color: rgba(245,240,232,0.35); padding-left: 1.5rem; }
+.t-gold   { color: var(--gold); }
+.t-cursor {
+  display: inline-block;
+  width: 8px; height: 1.1em;
+  background: var(--electric);
+  vertical-align: middle;
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ========================
+   PAGE 4 — LETTER
+======================== */
+#page4 {
+  background: #0b0b13;
+  flex-direction: column;
+  padding: 8rem 2rem;
+}
+
+.letter-wrap {
+  max-width: 720px;
+  width: 100%;
+  position: relative;
+}
+.letter-wrap::before {
+  content: '';
+  position: absolute;
+  left: -3rem;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+}
+
+.letter-date {
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 3rem;
+}
+.letter-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.15rem, 2.2vw, 1.55rem);
+  line-height: 1.85;
+  color: rgba(245,240,232,0.82);
+  font-weight: 300;
+}
+.letter-body em {
+  font-style: italic;
+  color: var(--gold-light);
+}
+.letter-body strong {
+  font-weight: 600;
+  color: var(--paper);
+}
+.letter-sig {
+  margin-top: 3.5rem;
+  font-family: 'Bodoni Moda', serif;
+  font-style: italic;
+  font-size: 2rem;
+  color: var(--gold);
+}
+.letter-ps {
+  margin-top: 1.5rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: rgba(245,240,232,0.25);
+}
+
+.floating-char {
+  position: absolute;
+  font-family: 'Bodoni Moda', serif;
+  font-style: italic;
+  color: var(--gold);
+  pointer-events: none;
+  animation: floatChar var(--d, 6s) ease-in-out infinite alternate;
+  opacity: 0.06;
+  font-size: var(--fs, 6rem);
+}
+@keyframes floatChar {
+  from { transform: translateY(0) rotate(var(--r0, 0deg)); }
+  to   { transform: translateY(-20px) rotate(var(--r1, 5deg)); }
+}
+
+/* ========================
+   PAGE 5 — FINALE
+======================== */
+#page5 {
+  background: var(--void);
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.finale-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,245,212,0.07), transparent),
+    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(255,60,110,0.07), transparent),
+    radial-gradient(ellipse 50% 50% at 80% 20%, rgba(200,169,110,0.07), transparent);
+}
+
+.finale-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.finale-number {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  color: var(--electric);
+  margin-bottom: 2rem;
+}
+
+.finale-title {
+  font-family: 'Bodoni Moda', serif;
+  font-style: italic;
+  font-size: clamp(3rem, 8vw, 7.5rem);
+  line-height: 1.05;
+  color: var(--paper);
+}
+.finale-title span { color: var(--gold); }
+
+.constellation {
+  position: relative;
+  width: 320px; height: 320px;
+  margin: 4rem auto;
+}
+canvas#starCanvas {
+  position: absolute; inset: 0;
+}
+
+.finale-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+.finale-line {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  color: rgba(245,240,232,0.5);
+  max-width: 480px;
+  line-height: 1.6;
+}
+.finale-tag {
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  text-transform: uppercase;
+  border: 1px solid rgba(200,169,110,0.3);
+  padding: 0.7rem 2rem;
+  transition: all 0.3s;
+}
+.finale-tag:hover {
+  background: rgba(200,169,110,0.06);
+  border-color: var(--gold);
+  letter-spacing: 0.55em;
+}
+
+/* SECTION DIVIDER */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(200,169,110,0.3), transparent);
+  margin: 0;
+}
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--void); }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+/* responsive */
+@media (max-width: 768px) {
+  nav { padding: 1rem 1.5rem; }
+  .nav-links { gap: 1.2rem; }
+  .metric-row { grid-template-columns: repeat(2,1fr); }
+  .memory-grid { grid-template-columns: repeat(2,1fr); }
+  .mem-cell.large { grid-column: span 2; }
+  #page2, #page3, #page4 { padding: 7rem 1.5rem; }
+  .letter-wrap::before { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav>
+  <div class="nav-logo">for you / always</div>
+  <ul class="nav-links">
+    <li><a href="#page1">Begin</a></li>
+    <li><a href="#page2">Memories</a></li>
+    <li><a href="#page3">Signal</a></li>
+    <li><a href="#page4">Letter</a></li>
+    <li><a href="#page5">Always</a></li>
+  </ul>
+</nav>
+
+<!-- ===================== PAGE 1 ===================== -->
+<section class="page" id="page1">
+  <div class="starfield" id="starfield"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <div class="hero-center">
+    <p class="hero-eyebrow">transmission // 001</p>
+    <h1 class="hero-title">
+      <span class="line1">Thank</span>
+      <span class="line2">You</span>
+      <span class="line3">Friend.</span>
+    </h1>
+    <p class="hero-subtitle">for existing in my universe</p>
+  </div>
+
+  <div class="scroll-cue">
+    <div class="scroll-line"></div>
+    <span>scroll</span>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===================== PAGE 2 ===================== -->
+<section class="page" id="page2" style="align-items:flex-start; justify-content:center;">
+  <div style="max-width:960px; width:100%;">
+    <p class="section-label reveal">chapter 02 // memory archive</p>
+    <h2 class="glitch-title reveal" data-text="Moments That Made Us">Moments That Made Us</h2>
+
+    <div class="memory-grid" style="margin-top:3.5rem;">
+      <div class="mem-cell large reveal">
+        <span class="mem-number">001</span>
+        <em>"The first time we laughed until it hurt — I knew right then."</em>
+      </div>
+      <div class="mem-cell reveal">
+        <span class="mem-number">002</span>
+        You showed up when showing up was hard.
+      </div>
+      <div class="mem-cell reveal">
+        <span class="mem-number">003</span>
+        Every inside joke is a universe only we can enter.
+      </div>
+      <div class="mem-cell reveal">
+        <span class="mem-number">004</span>
+        The silence between us was never empty.
+      </div>
+      <div class="mem-cell reveal">
+        <span class="mem-number">005</span>
+        <em>"You saw me before I saw myself."</em>
+      </div>
+      <div class="mem-cell large reveal">
+        <span class="mem-number">006</span>
+        The late nights, the long calls, the nothing-particular-just-you — archived forever.
+      </div>
+      <div class="mem-cell reveal">
+        <span class="mem-number">007</span>
+        You held my chaos like it was precious.
+      </div>
+      <div class="mem-cell reveal">
+        <span class="mem-number">008</span>
+        <em>"Some people change everything just by existing."</em>
+      </div>
+      <div class="mem-cell reveal">
+        <span class="mem-number">009</span>
+        Every memory glows a little warmer because you were in it.
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===================== PAGE 3 ===================== -->
+<section class="page" id="page3" style="align-items:center;">
+  <div class="signal-container">
+    <div class="signal-header reveal">
+      <p class="section-label">chapter 03 // friendship analytics</p>
+      <div class="waveform" id="waveform"></div>
+      <h2 style="font-family:'Bodoni Moda',serif; font-size:clamp(1.8rem,4vw,3.5rem); font-weight:700;">
+        Measuring the<em style="color:var(--gold);font-style:italic;"> Immeasurable</em>
+      </h2>
+    </div>
+
+    <div class="metric-row reveal">
+      <div class="metric">
+        <div class="metric-val" id="cnt-laughs">0</div>
+        <div class="metric-label">Laughs Shared</div>
+        <div class="metric-bar" style="animation-delay:0s"></div>
+      </div>
+      <div class="metric">
+        <div class="metric-val" id="cnt-secrets">0</div>
+        <div class="metric-label">Secrets Kept</div>
+        <div class="metric-bar" style="animation-delay:0.4s"></div>
+      </div>
+      <div class="metric">
+        <div class="metric-val" id="cnt-support">0</div>
+        <div class="metric-label">Times You Helped</div>
+        <div class="metric-bar" style="animation-delay:0.8s"></div>
+      </div>
+      <div class="metric">
+        <div class="metric-val" id="cnt-infinity">∞</div>
+        <div class="metric-label">Gratitude Units</div>
+        <div class="metric-bar" style="animation-delay:1.2s"></div>
+      </div>
+    </div>
+
+    <div class="terminal reveal" style="margin-top:1px;">
+      <br/>
+      <div><span class="t-prompt">❯ </span><span class="t-cmd">run friendship.analyze --deep</span></div>
+      <div class="t-out">scanning for genuine connections...</div>
+      <div class="t-out">found: <span class="t-gold">1 rare, irreplaceable signal</span></div>
+      <div class="t-out">signal strength: <span class="t-gold">MAXIMUM</span></div>
+      <div><span class="t-prompt">❯ </span><span class="t-cmd">query --what-are-you</span></div>
+      <div class="t-out">you are: someone who made the ordinary <span class="t-gold">extraordinary</span></div>
+      <div class="t-out">classification: <span class="t-gold">friend // the real kind</span></div>
+      <div><span class="t-prompt">❯ </span><span class="t-cursor"></span></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===================== PAGE 4 ===================== -->
+<section class="page" id="page4" style="align-items:center; justify-content:center;">
+
+  <div class="floating-char" style="top:10%; right:8%; --d:7s; --fs:10rem; --r0:-5deg; --r1:3deg;">T</div>
+  <div class="floating-char" style="bottom:15%; left:5%; --d:9s; --fs:8rem; --r0:8deg; --r1:-4deg;">Y</div>
+  <div class="floating-char" style="top:50%; right:3%; --d:6s; --fs:6rem; --r0:0deg; --r1:8deg;">F</div>
+
+  <div class="letter-wrap">
+    <p class="letter-date reveal">transmission date: always // to: you</p>
+    <div class="letter-body reveal">
+      <p>There are people who walk through your life, and people who <em>become</em> your life —
+      the ones who rearrange something quietly inside you and then act like they didn't even notice.</p>
+      <br/>
+      <p>You are the second kind.</p>
+      <br/>
+      <p>I've been thinking about how to explain what your friendship means — and every time I try,
+      language feels too small. Too flat. You deserve something bigger than words,
+      but words are what I have, so: <em>thank you.</em></p>
+      <br/>
+      <p>Thank you for the real conversations. For the times you chose honesty over comfort.
+      For seeing my worst days and <strong>staying anyway.</strong></p>
+      <br/>
+      <p>For laughing with me — genuinely, stupidly, <em>fully.</em></p>
+      <br/>
+      <p>For being someone I don't have to perform for.</p>
+      <br/>
+      <p>The universe is mostly empty space. And somehow, you ended up in mine.
+      <em>I don't take that lightly.</em></p>
+      <br/>
+      <p>So — <strong>thank you.</strong> For being exactly who you are. For being my friend.</p>
+    </div>
+    <div class="letter-sig reveal">— with everything I've got.</div>
+    <div class="letter-ps reveal">P.S. · this is not nearly enough. but it's the truest thing I know how to say.</div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===================== PAGE 5 ===================== -->
+<section class="page" id="page5">
+  <div class="finale-bg"></div>
+  <div class="finale-content">
+    <p class="finale-number reveal">chapter 05 // always</p>
+    <h2 class="finale-title reveal">
+      You are<br/><span>irreplaceable.</span>
+    </h2>
+
+    <div class="constellation">
+      <canvas id="starCanvas" width="320" height="320"></canvas>
+    </div>
+
+    <div class="finale-bottom">
+      <p class="finale-line reveal">
+        Not every signal travels at the speed of light —
+        some travel at the speed of <em style="color:var(--gold-light)">gratitude</em>,
+        and those last forever.
+      </p>
+      <div class="finale-tag reveal">thank you // always // forever</div>
+    </div>
+  </div>
+</section>
+
+<script>
+// ── CURSOR ──────────────────────────────────────────────
+const cursor     = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function animateCursor() {
+  rx += (mx - rx) * 0.18;
+  ry += (my - ry) * 0.18;
+  cursor.style.left     = mx + 'px';
+  cursor.style.top      = my + 'px';
+  cursorRing.style.left = rx + 'px';
+  cursorRing.style.top  = ry + 'px';
+  requestAnimationFrame(animateCursor);
+})();
+document.querySelectorAll('a, .mem-cell, .metric, .finale-tag').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.transform='translate(-50%,-50%) scale(2)'; cursorRing.style.transform='translate(-50%,-50%) scale(1.5)'; });
+  el.addEventListener('mouseleave', () => { cursor.style.transform='translate(-50%,-50%) scale(1)'; cursorRing.style.transform='translate(-50%,-50%) scale(1)'; });
+});
+
+// ── STARFIELD ───────────────────────────────────────────
+const sf = document.getElementById('starfield');
+for (let i = 0; i < 220; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const size = Math.random() * 2.5 + 0.5;
+  s.style.cssText = `
+    width:${size}px; height:${size}px;
+    top:${Math.random()*100}%; left:${Math.random()*100}%;
+    --lo:${(Math.random()*0.3+0.05).toFixed(2)};
+    --hi:${(Math.random()*0.6+0.3).toFixed(2)};
+    --d:${(Math.random()*5+1.5).toFixed(1)}s;
+    animation-delay:${(Math.random()*6).toFixed(1)}s;
+  `;
+  sf.appendChild(s);
+}
+
+// ── WAVEFORM ────────────────────────────────────────────
+const wf = document.getElementById('waveform');
+const barCount = 60;
+for (let i = 0; i < barCount; i++) {
+  const b = document.createElement('div');
+  b.className = 'waveform-bar';
+  const h = Math.round(Math.random() * 50 + 6);
+  const spd = (Math.random() * 0.8 + 0.5).toFixed(2);
+  const delay = (i / barCount * 1.5).toFixed(2);
+  b.style.cssText = `--h:${h}px; --spd:${spd}s; animation-delay:${delay}s;`;
+  wf.appendChild(b);
+}
+
+// ── COUNTERS ────────────────────────────────────────────
+function animateCounter(el, target, duration = 2200) {
+  let start = null;
+  function step(ts) {
+    if (!start) start = ts;
+    const pct = Math.min((ts - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - pct, 3);
+    el.textContent = Math.round(ease * target).toLocaleString();
+    if (pct < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+let counted = false;
+function tryCount() {
+  if (counted) return;
+  const el = document.getElementById('cnt-laughs');
+  if (!el) return;
+  const rect = el.closest('section').getBoundingClientRect();
+  if (rect.top < window.innerHeight * 0.85) {
+    counted = true;
+    animateCounter(document.getElementById('cnt-laughs'), 10482);
+    animateCounter(document.getElementById('cnt-secrets'), 247);
+    animateCounter(document.getElementById('cnt-support'), 1000);
+  }
+}
+
+// ── SCROLL REVEAL ───────────────────────────────────────
+const reveals = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+reveals.forEach(r => io.observe(r));
+
+window.addEventListener('scroll', tryCount, { passive: true });
+
+// ── CONSTELLATION CANVAS ────────────────────────────────
+const canvas = document.getElementById('starCanvas');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+const nodes = [];
+for (let i = 0; i < 26; i++) {
+  nodes.push({
+    x: Math.random() * W,
+    y: Math.random() * H,
+    r: Math.random() * 2.2 + 0.8,
+    vx: (Math.random() - 0.5) * 0.3,
+    vy: (Math.random() - 0.5) * 0.3,
+    blink: Math.random() * Math.PI * 2
+  });
+}
+
+function drawConst(ts) {
+  ctx.clearRect(0, 0, W, H);
+  // connections
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const dx = nodes[i].x - nodes[j].x;
+      const dy = nodes[i].y - nodes[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 110) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(200,169,110,${(1 - dist/110) * 0.35})`;
+        ctx.lineWidth = 0.5;
+        ctx.moveTo(nodes[i].x, nodes[i].y);
+        ctx.lineTo(nodes[j].x, nodes[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+  // stars
+  nodes.forEach(n => {
+    n.x += n.vx; n.y += n.vy;
+    n.blink += 0.02;
+    if (n.x < 0 || n.x > W) n.vx *= -1;
+    if (n.y < 0 || n.y > H) n.vy *= -1;
+    const glow = (Math.sin(n.blink) + 1) / 2;
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(200,169,110,${0.5 + glow * 0.5})`;
+    ctx.fill();
+    // glow
+    const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 5);
+    grad.addColorStop(0, `rgba(0,245,212,${glow * 0.25})`);
+    grad.addColorStop(1, 'transparent');
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.r * 5, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawConst);
+}
+requestAnimationFrame(drawConst);
+
+// ── MOUSE PARALLAX ──────────────────────────────────────
+document.addEventListener('mousemove', e => {
+  const xp = (e.clientX / window.innerWidth  - 0.5) * 20;
+  const yp = (e.clientY / window.innerHeight - 0.5) * 20;
+  document.querySelectorAll('.orb').forEach((o, i) => {
+    const f = (i + 1) * 0.4;
+    o.style.transform = `translate(${xp * f}px, ${yp * f}px)`;
+  });
+});
+</script>
+</body>
+</html>

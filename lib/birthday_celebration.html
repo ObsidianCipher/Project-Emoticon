@@ -1,0 +1,238 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: transparent; }
+  #scene { min-height: 520px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: transparent; }
+  #start-screen { display: flex; align-items: center; justify-content: center; min-height: 520px; }
+  .glassy-btn {
+    padding: 18px 52px;
+    font-size: 20px;
+    font-weight: 500;
+    color: #fff;
+    background: rgba(255,255,255,0.18);
+    border: 1.5px solid rgba(255,255,255,0.45);
+    border-radius: 50px;
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(120,80,200,0.18), 0 2px 8px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.35);
+    background: linear-gradient(135deg, rgba(180,120,255,0.45) 0%, rgba(100,180,255,0.35) 100%);
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 2px;
+  }
+  .glassy-btn:hover { transform: scale(1.06); box-shadow: 0 12px 40px rgba(120,80,200,0.28), inset 0 1px 0 rgba(255,255,255,0.5); }
+  .glassy-btn:active { transform: scale(0.97); }
+
+  #party-screen { display: none; min-height: 520px; width: 100%; position: relative; background: linear-gradient(160deg, #1a0533 0%, #2d0a5e 40%, #0a1a4a 100%); border-radius: 16px; overflow: hidden; align-items: center; justify-content: center; flex-direction: column; }
+
+  .stars { position: absolute; inset: 0; pointer-events: none; }
+  .star { position: absolute; width: 3px; height: 3px; background: #fff; border-radius: 50%; animation: twinkle 2s infinite alternate; }
+
+  @keyframes twinkle { from { opacity: 0.2; } to { opacity: 1; } }
+
+  .balloon {
+    position: absolute;
+    width: 52px;
+    height: 64px;
+    border-radius: 50% 50% 45% 45%;
+    bottom: -80px;
+    animation: floatUp 3.5s cubic-bezier(0.2,0.8,0.4,1) forwards;
+  }
+  .balloon::after {
+    content: '';
+    display: block;
+    width: 1.5px;
+    height: 38px;
+    background: rgba(255,255,255,0.45);
+    margin: 0 auto;
+    margin-top: 1px;
+  }
+  @keyframes floatUp {
+    0% { bottom: -80px; opacity: 0; }
+    15% { opacity: 1; }
+    100% { bottom: 320px; opacity: 0.92; }
+  }
+
+  .cake-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0;
+    transform: scale(0.4) translateY(60px);
+    animation: popIn 0.7s cubic-bezier(0.22,1.4,0.36,1) 0.35s forwards;
+  }
+  @keyframes popIn {
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .hb-text {
+    font-family: var(--font-sans, 'Segoe UI', sans-serif);
+    font-size: 36px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: 3px;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.5) translateY(30px);
+    animation: popIn 0.65s cubic-bezier(0.22,1.4,0.36,1) 0.85s forwards;
+    text-shadow: 0 0 24px rgba(255,180,80,0.7), 0 2px 8px rgba(0,0,0,0.4);
+    margin-top: 18px;
+  }
+  .hb-sub {
+    font-size: 15px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 4px;
+    margin-top: 6px;
+    opacity: 0;
+    animation: popIn 0.5s ease 1.3s forwards;
+    transform: none;
+  }
+
+  .confetti-piece {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    opacity: 0;
+    animation: confettiFall 2.2s ease-in forwards;
+  }
+  @keyframes confettiFall {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(360px) rotate(720deg); }
+  }
+
+  .flame {
+    width: 8px;
+    height: 16px;
+    background: linear-gradient(to top, #ff8c00, #ffe066, #fff);
+    border-radius: 50% 50% 30% 30%;
+    animation: flicker 0.7s infinite alternate;
+    margin: 0 auto;
+    position: relative;
+    top: -2px;
+  }
+  @keyframes flicker {
+    0% { transform: scaleX(1) scaleY(1); opacity: 0.95; }
+    100% { transform: scaleX(0.85) scaleY(1.12); opacity: 1; }
+  }
+</style>
+
+<h2 class="sr-only">Birthday celebration animation with a start button, cake, candles, balloons, and happy birthday text</h2>
+
+<div id="scene">
+  <div id="start-screen">
+    <button class="glassy-btn" onclick="startParty()">✦ Start ✦</button>
+  </div>
+  <div id="party-screen">
+    <div class="stars" id="stars"></div>
+    <div id="balloons-left"></div>
+    <div id="balloons-right"></div>
+    <div id="confetti-container"></div>
+    <div style="display:flex;flex-direction:column;align-items:center;z-index:2;position:relative;">
+      <div class="cake-wrap" id="cake-wrap">
+        <!-- Candles row -->
+        <div style="display:flex;gap:14px;justify-content:center;margin-bottom:0;">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="flame"></div>
+            <div style="width:9px;height:28px;background:linear-gradient(180deg,#ff69b4,#ff1493);border-radius:3px 3px 1px 1px;"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="flame"></div>
+            <div style="width:9px;height:28px;background:linear-gradient(180deg,#ffe066,#f7b731);border-radius:3px 3px 1px 1px;"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="flame"></div>
+            <div style="width:9px;height:28px;background:linear-gradient(180deg,#a0f0a0,#27ae60);border-radius:3px 3px 1px 1px;"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="flame"></div>
+            <div style="width:9px;height:28px;background:linear-gradient(180deg,#b0d0ff,#3498db);border-radius:3px 3px 1px 1px;"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="flame"></div>
+            <div style="width:9px;height:28px;background:linear-gradient(180deg,#ff69b4,#9b59b6);border-radius:3px 3px 1px 1px;"></div>
+          </div>
+        </div>
+        <!-- Top layer -->
+        <div style="width:130px;height:40px;background:linear-gradient(135deg,#f9c6e0,#f48fb1);border-radius:10px 10px 0 0;border:2px solid #e91e8c;position:relative;overflow:hidden;">
+          <div style="position:absolute;bottom:0;left:0;right:0;height:12px;background:repeating-linear-gradient(90deg,#fff 0,#fff 8px,transparent 8px,transparent 16px);opacity:0.35;"></div>
+        </div>
+        <!-- Middle layer -->
+        <div style="width:160px;height:44px;background:linear-gradient(135deg,#fffde7,#fff9c4);border:2px solid #f7b731;margin-top:0;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:8px;left:0;right:0;text-align:center;font-size:12px;color:#c0392b;letter-spacing:1px;font-weight:500;">🎂</div>
+          <div style="position:absolute;bottom:0;left:0;right:0;height:10px;background:repeating-linear-gradient(90deg,#f48fb1 0,#f48fb1 10px,transparent 10px,transparent 20px);opacity:0.3;"></div>
+        </div>
+        <!-- Base layer -->
+        <div style="width:190px;height:52px;background:linear-gradient(135deg,#e1f5fe,#b3e5fc);border:2px solid #0288d1;border-radius:0 0 10px 10px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:10px;left:0;right:0;display:flex;justify-content:center;gap:10px;">
+            <div style="width:12px;height:12px;background:#ff80ab;border-radius:50%;"></div>
+            <div style="width:12px;height:12px;background:#ffe066;border-radius:50%;"></div>
+            <div style="width:12px;height:12px;background:#a5d6a7;border-radius:50%;"></div>
+            <div style="width:12px;height:12px;background:#90caf9;border-radius:50%;"></div>
+            <div style="width:12px;height:12px;background:#ce93d8;border-radius:50%;"></div>
+          </div>
+          <div style="position:absolute;bottom:0;left:0;right:0;height:12px;background:repeating-linear-gradient(90deg,#29b6f6 0,#29b6f6 12px,transparent 12px,transparent 24px);opacity:0.2;"></div>
+        </div>
+        <!-- Plate -->
+        <div style="width:210px;height:12px;background:linear-gradient(180deg,#eceff1,#cfd8dc);border-radius:0 0 60px 60px;border:1.5px solid #b0bec5;"></div>
+      </div>
+      <div class="hb-text">Happy Birthday!</div>
+      <div class="hb-sub">✦ &nbsp; wishing you a wonderful day &nbsp; ✦</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function startParty() {
+  document.getElementById('start-screen').style.display = 'none';
+  const p = document.getElementById('party-screen');
+  p.style.display = 'flex';
+
+  const stars = document.getElementById('stars');
+  for (let i = 0; i < 38; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.animationDelay = (Math.random() * 2) + 's';
+    s.style.width = s.style.height = (Math.random() * 3 + 1.5) + 'px';
+    stars.appendChild(s);
+  }
+
+  const balloonColors = ['#ff69b4','#ffe066','#7ecfff','#a0f0a0','#ce93d8','#ff8c69','#98ddff'];
+  const leftBalloons = document.getElementById('balloons-left');
+  const rightBalloons = document.getElementById('balloons-right');
+
+  for (let i = 0; i < 5; i++) {
+    const b = document.createElement('div');
+    b.className = 'balloon';
+    b.style.background = balloonColors[i % balloonColors.length];
+    b.style.left = (8 + i * 14) + '%';
+    b.style.animationDelay = (0.2 + i * 0.25) + 's';
+    b.style.animationDuration = (3 + Math.random()) + 's';
+    leftBalloons.appendChild(b);
+
+    const b2 = document.createElement('div');
+    b2.className = 'balloon';
+    b2.style.background = balloonColors[(i + 3) % balloonColors.length];
+    b2.style.right = (8 + i * 14) + '%';
+    b2.style.animationDelay = (0.4 + i * 0.3) + 's';
+    b2.style.animationDuration = (3.2 + Math.random()) + 's';
+    rightBalloons.appendChild(b2);
+  }
+
+  const cc = document.getElementById('confetti-container');
+  const cColors = ['#ff69b4','#ffe066','#7ecfff','#a0f0a0','#ce93d8','#ff8c69','#fff'];
+  for (let i = 0; i < 38; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti-piece';
+    c.style.background = cColors[Math.floor(Math.random() * cColors.length)];
+    c.style.left = Math.random() * 100 + '%';
+    c.style.top = (Math.random() * 20) + '%';
+    c.style.animationDelay = (0.5 + Math.random() * 1.5) + 's';
+    c.style.animationDuration = (1.8 + Math.random() * 1.2) + 's';
+    c.style.transform = 'rotate(' + (Math.random()*360) + 'deg)';
+    cc.appendChild(c);
+  }
+}
+</script>

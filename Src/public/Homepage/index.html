@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Project Emoticon</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="index_style.css" />
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cur"></div>
+<div class="cursor-ring" id="curRing"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="logo-icon">💬</div>
+    <span>Project <em>Emoticon</em></span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#pricings">Pricings</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="signin.html" class="nav-cta">Sign in with Keys</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <span class="emoji-orbit">💌</span>
+  <span class="emoji-orbit">🎂</span>
+  <span class="emoji-orbit">💍</span>
+  <span class="emoji-orbit">🎉</span>
+  <span class="emoji-orbit">💕</span>
+  <span class="emoji-orbit">✨</span>
+
+  <div class="hero-eyebrow">Express anything · Beautifully</div>
+  <h1 class="hero-title">
+    <span class="line1">Emotion</span>
+    <span class="line2"><span class="accent-word">Delivered.</span></span>
+  </h1>
+  <p class="hero-sub">
+    Personalised digital greeting experiences for every moment — birthdays, proposals, anniversaries, and beyond. Premium. Instant. Unforgettable.
+  </p>
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="document.getElementById('pricings').scrollIntoView({behavior:'smooth'})">Explore Services</button>
+    <button class="btn-ghost" onclick="document.getElementById('signin').scrollIntoView({behavior:'smooth'})">Access with Key →</button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat-item">
+    <span class="stat-num">13<span>+</span></span>
+    <span class="stat-label">Service Types</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">₹<span>15</span></span>
+    <span class="stat-label">Starting Price</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">100<span>%</span></span>
+    <span class="stat-label">Custom Built</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num"><span>∞</span></span>
+    <span class="stat-label">Possibilities</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid reveal">
+    <div>
+      <p class="section-label">// What is this</p>
+      <h2 class="section-title">Crafted emotions,<br/>pixel by pixel.</h2>
+      <p class="section-sub">Project Emoticon is a digital greeting studio that transforms your feelings into stunning, personalised visual experiences. Whether it's a heartfelt birthday wish or an elaborate wedding proposal — we make it memorable.</p>
+      <ul class="about-features">
+        <li><span class="feat-icon">🎯</span><div><strong style="color:var(--text)">Hyper-personalised</strong><br/>Every greeting is crafted uniquely for the recipient — no templates, no shortcuts.</div></li>
+        <li><span class="feat-icon">⚡</span><div><strong style="color:var(--text)">4 Day delivery</strong><br/>Receive your digital greeting within 4 business days.</div></li>
+        <li><span class="feat-icon">🔐</span><div><strong style="color:var(--text)">Key-based access</strong><br/>Your identity-linked access key keeps everything secure and personal till allocated date.</div></li>
+      </ul>
+    </div>
+    <div class="about-visual">
+      <span class="emoji-ring">💌</span>
+      <span class="emoji-ring">🎂</span>
+      <span class="emoji-ring">💍</span>
+      <span class="big-emoji">✨</span>
+    </div>
+  </div>
+</section>
+
+<hr class="full-divider" />
+
+<!-- PRICINGS -->
+<section id="pricings" style="max-width:1200px">
+  <div class="reveal">
+    <p class="section-label">// Rates & Services</p>
+    <h2 class="section-title">Simple, honest pricing.</h2>
+    <p class="section-sub">Transparent rates for every occasion. No hidden fees — just pure emotion at an honest price.</p>
+  </div>
+
+  <table class="pricing-table reveal">
+    <thead>
+      <tr>
+        <th>Service</th>
+        <th>Description</th>
+        <th>Price (INR)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="service-name">🎂 Birthday</span></td>
+        <td style="color:var(--muted);font-size:0.85rem">A personalised birthday celebration greeting</td>
+        <td class="price-cell">₹30</td>
+      </tr>
+      <tr>
+        <td><span class="service-name">💘 Love Proposal</span></td>
+        <td style="color:var(--muted);font-size:0.85rem">Confess your feelings with a stunning visual</td>
+        <td class="price-cell">₹40</td>
+      </tr>
+      <tr>
+        <td><span class="service-name">💍 Wedding Proposal</span></td>
+        <td style="color:var(--muted);font-size:0.85rem">Make the most important question unforgettable</td>
+        <td class="price-cell">₹40</td>
+      </tr>
+      <tr>
+        <td><span class="service-name">❤️ Valentine</span></td>
+        <td style="color:var(--muted);font-size:0.85rem">Spread love this Valentine's Day</td>
+        <td class="price-cell">₹30</td>
+      </tr>
+      <tr>
+        <td><span class="service-name">🙏 Thank You</span></td>
+        <td style="color:var(--muted);font-size:0.85rem">Express heartfelt gratitude beautifully</td>
+        <td class="price-cell">₹20</td>
+      </tr>
+      <tr>
+        <td><span class="service-name">😔 I Am Sorry</span></td>
+        <td style="color:var(--muted);font-size:0.85rem">Apologise sincerely and meaningfully</td>
+        <td class="price-cell">₹30</td>
+      </tr>
+      <tr>
+        <td><span class="service-name">💒 Wedding Anniversary <span class="badge badge-popular">Popular</span></span></td>
+        <td style="color:var(--muted);font-size:0.85rem">Celebrate years of togetherness in style</td>
+        <td class="price-cell">₹50</td>
+      </tr>
+      <tr>
+        <td><span class="service-name">💑 Love Anniversary</span></td>
+        <td style="color:var(--muted);font-size:0.85rem">Relive your love story with a special greeting</td>
+        <td class="price-cell">₹40</td>
+      </tr>
+      <tr>
+        <td><span class="service-name">🤝 Friendship Day</span></td>
+        <td style="color:var(--muted);font-size:0.85rem">Celebrate bonds that matter</td>
+        <td class="price-cell">₹20</td>
+      </tr>
+      <tr>
+        <td><span class="service-name">💭 I Miss You</span></td>
+        <td style="color:var(--muted);font-size:0.85rem">Let them know they're always on your mind</td>
+        <td class="price-cell">₹30</td>
+      </tr>
+      <tr>
+        <td><span class="service-name">🎊 Party Invite</span></td>
+        <td style="color:var(--muted);font-size:0.85rem">Creative digital invitations for your events</td>
+        <td class="price-cell">₹15</td>
+      </tr>
+      <tr>
+        <td><span class="service-name">🎆 Festivals</span></td>
+        <td style="color:var(--muted);font-size:0.85rem">Seasonal and cultural festival greetings</td>
+        <td class="price-cell">₹30</td>
+      </tr>
+      <tr>
+        <td><span class="service-name">🛠️ Custom Build <span class="badge badge-custom">Custom</span></span></td>
+        <td style="color:var(--muted);font-size:0.85rem">Fully bespoke greeting — your vision, our craft</td>
+        <td class="price-cell">₹60</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<hr class="full-divider" />
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-wrap">
+    <div class="reveal">
+      <p class="section-label">// Get in touch</p>
+      <h2 class="section-title">Let's make something special.</h2>
+      <div class="contact-info">
+        <p>Have a specific idea in mind or need something beyond the menu? Reach out — we'd love to hear your vision.</p>
+      </div>
+      <div class="contact-links">
+        <a href="#" class="contact-link">
+          <span class="icon">📧</span>
+          <div>
+            <div>
+              Projectemoticon.support@gmail.com
+            </div>
+            <div class="lbl">Email us</div>
+          </div>
+        </a>
+        <a href="#" class="contact-link">
+          <span class="icon">💬</span>
+          <div>
+            <div>Drop a message</div>
+            <div class="lbl">Use the form →</div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="contact-form reveal">
+      <div class="form-group">
+        <label class="form-label">Your Name</label>
+        <input class="form-input" type="text" placeholder="What should we call you?" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" placeholder="your@email.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Service Interested In</label>
+        <select class="form-select">
+          <option value="">— Select a service —</option>
+          <option>Birthday (₹30)</option>
+          <option>Love Proposal (₹40)</option>
+          <option>Wedding Proposal (₹40)</option>
+          <option>Valentine (₹30)</option>
+          <option>Thank You (₹20)</option>
+          <option>I Am Sorry (₹30)</option>
+          <option>Wedding Anniversary (₹50)</option>
+          <option>Love Anniversary (₹40)</option>
+          <option>Friendship Day (₹20)</option>
+          <option>I Miss You (₹30)</option>
+          <option>Party Invite (₹15)</option>
+          <option>Festivals (₹30)</option>
+          <option>Custom Build (₹60)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message / Details</label>
+        <textarea class="form-textarea" placeholder="Tell us about the person, the occasion, and any special details..."></textarea>
+      </div>
+      <button class="btn-primary" style="width:100%;text-align:center;border-radius:8px">Send Request ✦</button>
+    </div>
+  </div>
+</section>
+
+<hr class="full-divider" />
+
+
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Project <em>Emoticon</em></div>
+  <div class="footer-copy">© 2026 Project Emoticon · All rights reserved · Made with 💌</div>
+</footer>
+
+<script src="base-script.js"></script>
+</body>
+</html>

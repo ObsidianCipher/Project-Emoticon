@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin — Project Emoticon</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">💬</div>
+    <div class="logo-text">
+      Project Emoticon
+      <span>admin console</span>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">workspace</div>
+    <div class="nav-item active" onclick="setPage('overview', this)">
+      <span class="nav-dot"></span>
+      <span class="nav-icon">▦</span> Overview
+    </div>
+    <div class="nav-item" onclick="setPage('customers', this)">
+      <span class="nav-dot"></span>
+      <span class="nav-icon">◉</span> Customers
+      <span class="nav-badge" id="cust-badge">12</span>
+    </div>
+    <div class="nav-item" onclick="setPage('keys', this)">
+      <span class="nav-dot"></span>
+      <span class="nav-icon">⬡</span> Access Keys
+    </div>
+    <div class="nav-item" onclick="setPage('orders', this)">
+      <span class="nav-dot"></span>
+      <span class="nav-icon">◈</span> Orders
+    </div>
+  </div>
+
+  <div class="nav-section" style="margin-top: 8px;">
+    <div class="nav-label">system</div>
+    <div class="nav-item" onclick="setPage('logs', this)">
+      <span class="nav-dot"></span>
+      <span class="nav-icon">≡</span> Activity Log
+    </div>
+    <div class="nav-item" onclick="setPage('settings', this)">
+      <span class="nav-dot"></span>
+      <span class="nav-icon">⚙</span> Settings
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="admin-chip">
+      <div class="admin-avatar">A</div>
+      <div class="admin-info">
+        <div class="admin-name">Admin</div>
+        <div class="admin-role">super admin</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- Topbar -->
+  <div class="topbar">
+    <span class="topbar-title" id="page-title">Overview</span>
+    <span class="topbar-path">
+      <span class="sep">/</span>
+      <span id="page-path" style="color:var(--muted); font-family: var(--mono); font-size:11px;">dashboard</span>
+    </span>
+    <div class="topbar-actions">
+      <div class="server-status" onclick="pingServer()" title="Click to ping server">
+        <span class="status-dot dot-green" id="server-dot"></span>
+        <span id="server-label">localhost:4000</span>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('new-customer')">+ New Customer</button>
+    </div>
+  </div>
+
+  <!-- CONTENT PAGES -->
+  <div class="content" id="content-overview">
+
+    <!-- Stat Cards -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-card-label">Total Customers</div>
+        <div class="stat-card-value">12</div>
+        <div class="stat-card-delta delta-up">↑ 3 this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">Active Keys</div>
+        <div class="stat-card-value">9</div>
+        <div class="stat-card-delta delta-neutral">— 3 pending</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">Revenue (INR)</div>
+        <div class="stat-card-value">₹<span>1,840</span></div>
+        <div class="stat-card-delta delta-up">↑ ₹340 today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">Orders</div>
+        <div class="stat-card-value">31</div>
+        <div class="stat-card-delta delta-up">↑ 5 this week</div>
+      </div>
+    </div>
+
+    <div class="panels-row">
+
+      <!-- Activity chart -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Order Activity</span>
+          <span class="panel-sub">last 7 days</span>
+        </div>
+        <div class="panel-body">
+          <div class="chart-wrap" id="chart">
+            <!-- bars injected by JS -->
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent);opacity:0.7"></div> Orders</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--blue);opacity:0.6"></div> Keys Issued</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Quick Actions</span>
+        </div>
+        <div class="panel-body">
+          <div class="quick-actions">
+            <button class="quick-action" onclick="openModal('new-customer')">
+              <div class="quick-action-icon">👤</div>
+              <div>
+                <div class="quick-action-label">Register Customer</div>
+                <div class="quick-action-desc">Create account + issue EMTCN key</div>
+              </div>
+              <span class="quick-action-arrow">›</span>
+            </button>
+            <button class="quick-action" onclick="openModal('lookup-key')">
+              <div class="quick-action-icon">🔑</div>
+              <div>
+                <div class="quick-action-label">Lookup Key</div>
+                <div class="quick-action-desc">Find customer by EMTCN key</div>
+              </div>
+              <span class="quick-action-arrow">›</span>
+            </button>
+            <button class="quick-action" onclick="openModal('issue-key')">
+              <div class="quick-action-icon">⬡</div>
+              <div>
+                <div class="quick-action-label">Issue New Key</div>
+                <div class="quick-action-desc">Generate key for existing customer</div>
+              </div>
+              <span class="quick-action-arrow">›</span>
+            </button>
+            <button class="quick-action" onclick="pingServer()">
+              <div class="quick-action-icon">📡</div>
+              <div>
+                <div class="quick-action-label">Ping Server</div>
+                <div class="quick-action-desc">Check API health at localhost:4000</div>
+              </div>
+              <span class="quick-action-arrow">›</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Recent Activity log -->
+    <div class="panel panel-full">
+      <div class="panel-header">
+        <span class="panel-title">Recent Activity</span>
+        <span class="panel-sub">live</span>
+      </div>
+      <div class="panel-body panel-scrollable">
+        <div class="log-list" id="activity-log">
+          <!-- injected by JS -->
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /overview -->
+
+  <!-- CUSTOMERS PAGE -->
+  <div class="content" id="content-customers" style="display:none">
+    <div class="panel panel-full">
+      <div class="panel-header">
+        <span class="panel-title">Customers</span>
+        <button class="btn btn-primary" style="margin-left:auto" onclick="openModal('new-customer')">+ Register</button>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input class="search-input" placeholder="Search name or email..." oninput="filterCustomers(this.value)" />
+        </div>
+        <select class="filter-select">
+          <option>All statuses</option>
+          <option>Active</option>
+          <option>Pending</option>
+        </select>
+      </div>
+      <div class="panel-body panel-scrollable">
+        <table class="data-table" id="customers-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Registered</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="customers-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- KEYS PAGE -->
+  <div class="content" id="content-keys" style="display:none">
+    <div class="panel panel-full">
+      <div class="panel-header">
+        <span class="panel-title">Access Keys</span>
+        <button class="btn btn-primary" style="margin-left:auto" onclick="openModal('issue-key')">+ Issue Key</button>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input class="search-input" placeholder="Search EMTCN key..." oninput="filterKeys(this.value)" />
+        </div>
+        <div class="form-row">
+  <label class="form-label">Customer ID</label>
+  <input class="form-input" id="ik-custid" type="number" placeholder="e.g. 3" />
+        </div>
+        <div class="form-row">
+        <label class="form-label">Greeting File</label>
+        <select class="form-input" id="ik-file">
+          <option value="">— Select greeting —</option>
+          <option value="birthday.html">Birthday</option>
+          <option value="birthday_v1.html">Birthday v1</option>
+          <option value="birthday_v2.html">Birthday v2</option>
+          <option value="birthday_celebration.html">Birthday Celebration</option>
+          <option value="birthday_iris-FINAL.html">Birthday Iris</option>
+          <option value="fiona-birthday.html">Fiona Birthday</option>
+          <option value="preya_birthday.html">Preya Birthday</option>
+          <option value="anniversary.html">Anniversary</option>
+          <option value="valentine.html">Valentine</option>
+          <option value="apology.html">Apology</option>
+          <option value="friend.html">Friendship</option>
+          <option value="heart.html">Heart</option>
+        </select>
+        </div>
+        <select class="filter-select">
+          <option>All</option>
+          <option>Active</option>
+          <option>Revoked</option>
+        </select>
+      </div>
+      <div class="panel-body panel-scrollable">
+        <table class="data-table" id="keys-table">
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th>Customer</th>
+              <th>Issued</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="keys-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDERS PAGE -->
+  <div class="content" id="content-orders" style="display:none">
+    <div class="panel panel-full">
+      <div class="panel-header">
+        <span class="panel-title">Orders</span>
+        <span class="panel-sub">all time</span>
+      </div>
+      <div class="panel-body panel-scrollable">
+        <table class="data-table">
+          <thead>
+            <tr><th>#</th><th>Customer</th><th>Service</th><th>Amount</th><th>Date</th><th>Status</th></tr>
+          </thead>
+          <tbody id="orders-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGS PAGE -->
+  <div class="content" id="content-logs" style="display:none">
+    <div class="panel panel-full">
+      <div class="panel-header">
+        <span class="panel-title">Activity Log</span>
+        <span class="panel-sub">full history</span>
+      </div>
+      <div class="panel-body panel-scrollable" style="max-height:calc(100vh - 180px)">
+        <div class="log-list" id="full-log"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS PAGE -->
+  <div class="content" id="content-settings" style="display:none">
+    <div class="panels-row">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">API Configuration</span></div>
+        <div class="panel-body" style="padding:20px;display:flex;flex-direction:column;gap:14px">
+          <div class="form-row">
+            <label class="form-label">Base URL</label>
+            <input class="form-input" value="http://localhost:4000/api" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">Environment</label>
+            <select class="form-input filter-select" style="padding:9px 12px">
+              <option>Development</option>
+              <option>Staging</option>
+              <option>Production</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width:fit-content" onclick="toast('⚙️', 'Settings saved.')">Save</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Key Policy</span></div>
+        <div class="panel-body" style="padding:20px;display:flex;flex-direction:column;gap:14px">
+          <div class="form-row">
+            <label class="form-label">Max keys per customer</label>
+            <input class="form-input" type="number" value="1" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">Key prefix</label>
+            <input class="form-input" value="EMTCN" style="font-family:var(--mono)" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">Segments × Length</label>
+            <input class="form-input" value="3 × 4" style="font-family:var(--mono)" />
+          </div>
+          <button class="btn btn-primary" style="width:fit-content" onclick="toast('🔑', 'Key policy updated.')">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ── MODALS ── -->
+
+<!-- New Customer -->
+<div class="modal-overlay" id="modal-new-customer">
+  <div class="modal">
+    <div class="modal-header">
+      <span style="font-size:16px">👤</span>
+      <span class="modal-title">Register Customer</span>
+      <button class="modal-close" onclick="closeModal('new-customer')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-label">Full Name</label>
+        <input class="form-input" id="nc-name" placeholder="Arjun Sharma" />
+      </div>
+      <div class="form-row">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" id="nc-email" type="email" placeholder="arjun@example.com" />
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:10.5px;color:var(--muted)">
+        <span>🔑</span> EMTCN key will be auto-generated and issued.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('new-customer')">Cancel</button>
+      <button class="btn btn-primary" onclick="registerCustomer()">Register + Issue Key</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lookup Key -->
+<div class="modal-overlay" id="modal-lookup-key">
+  <div class="modal">
+    <div class="modal-header">
+      <span style="font-size:16px">🔍</span>
+      <span class="modal-title">Lookup Key</span>
+      <button class="modal-close" onclick="closeModal('lookup-key')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-label">EMTCN Key</label>
+        <input class="form-input" id="lk-key" placeholder="EMTCN-XXXX-XXXX-XXXX" style="font-family:var(--mono);letter-spacing:0.06em" oninput="this.value=this.value.toUpperCase()" />
+      </div>
+      <div id="lk-result" style="display:none;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:11px;line-height:1.8"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('lookup-key')">Close</button>
+      <button class="btn btn-primary" onclick="lookupKey()">Lookup</button>
+    </div>
+  </div>
+</div>
+
+<!-- Issue Key -->
+<div class="modal-overlay" id="modal-issue-key">
+  <div class="modal">
+    <div class="modal-header">
+      <span style="font-size:16px">⬡</span>
+      <span class="modal-title">Issue Key</span>
+      <button class="modal-close" onclick="closeModal('issue-key')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-label">Customer ID</label>
+        <input class="form-input" id="ik-custid" type="number" placeholder="e.g. 3" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('issue-key')">Cancel</button>
+      <button class="btn btn-primary" onclick="issueKey()">Issue Key</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast stack -->
+<div class="toast-stack" id="toasts"></div>
+
+<script src="a-script.js"></script>
+
+
+</body>
+</html>
